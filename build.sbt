@@ -20,7 +20,7 @@ lazy val `cats-examples` = (project in file("cats-examples"))
 
 lazy val welcomeSettings = Seq(
   logo      := Embroidery.projectLogo,
-  logoColor := scala.Console.BLUE,
+  logoColor := scala.Console.RED,
   usefulTasks := Seq(
     UsefulTask("test", "Run all unit tests.").alias("ut")
   )
