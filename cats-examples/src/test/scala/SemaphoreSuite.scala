@@ -9,7 +9,7 @@ import cats.implicits.*
 import scala.concurrent.duration.*
 
 class SemaphoreSuite extends munit.FunSuite {
-  test("Semaphore - when multiple processes try to access a resource and we want to constrain the number of accesses") {
+  test("Semaphore is useful for throttling - when multiple processes try to access a resource and we want to constrain the number of accesses") {
     class PreciousResource[F[_]: Temporal](name: String, s: Semaphore[F])(implicit F: Console[F]) {
       def use: F[Unit] =
         for {
