@@ -1,6 +1,6 @@
 import cats.effect.IO
-import cats.syntax.all.*
 import cats.effect.unsafe.implicits.global
+import cats.syntax.all.*
 
 class RefSuite extends munit.FunSuite {
   test("Ref is all about atomic concurrent operations") {
