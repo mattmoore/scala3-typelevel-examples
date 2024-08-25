@@ -1,8 +1,9 @@
 import cats.effect.{ExitCode, IO, Resource}
+import cats.syntax.all.*
 import java.io.*
 import cats.effect.unsafe.implicits.global
 
-class ResourceSuite extends munit.FunSuite {
+class ResourceFileConcatenationParallel extends munit.FunSuite {
   test("Resource is used for acquiring, using and releasing a resource") {
     def transfer(source: InputStream, destination: OutputStream, buffer: Array[Byte], acc: Long): IO[Long] =
       for {
@@ -18,27 +19,35 @@ class ResourceSuite extends munit.FunSuite {
     def outputStream(f: File): Resource[IO, FileOutputStream] =
       Resource.fromAutoCloseable(IO.blocking(new FileOutputStream(f)))
 
-    def inputOutputStreams(in: File, out: File): Resource[IO, (InputStream, OutputStream)] =
+    def inputOutputStreams(ins: List[File], out: File): Resource[IO, (List[InputStream], OutputStream)] =
       for {
-        inStream  <- inputStream(in)
+        inStreams <- ins.traverse(inputStream)
         outStream <- outputStream(out)
-      } yield (inStream, outStream)
+      } yield (inStreams, outStream)
 
-    def copy(source: File, destination: File): IO[Long] =
-      inputOutputStreams(source, destination).use { case (in, out) =>
-        transfer(in, out, new Array[Byte](1024 * 10), 0L)
-      }
+    def copy(sources: List[File], destination: File): IO[Long] =
+      inputOutputStreams(sources, destination)
+        .use { case (ins, out) =>
+          ins.traverse { in =>
+            for {
+              count <- transfer(in, out, new Array[Byte](1024 * 10), 0L)
+            } yield count
+          }
+        }
+        .map(_.sum)
 
     def program(args: List[String]): IO[ExitCode] =
       for {
         _ <- IO.raiseWhen(args.length < 2)(new IllegalArgumentException("Need source and destination files"))
-        source = new File(getClass().getClassLoader().getResource(args.head).getPath())
-        dest   = new File(args.tail.head)
-        count <- copy(source, dest)
-        _     <- IO.println(s"$count bytes copied from ${source.getPath} to ${dest.getPath}")
+        sources = args.init.map { arg =>
+          File(getClass().getClassLoader().getResource(arg).getPath())
+        }
+        dest = new File(args.last)
+        count <- copy(sources, dest)
+        _     <- IO.println(s"$count bytes copied from ${sources.map(_.getPath())} to ${dest.getPath}")
       } yield ExitCode.Success
 
-    val actual = program(List("file1.txt", "data/concatenated.txt")).unsafeRunSync()
+    val actual = program(List("file1.txt", "file2.txt", "file3.txt", "data/concatenated.txt")).unsafeRunSync()
     assertEquals(actual, ExitCode.Success)
   }
 }
