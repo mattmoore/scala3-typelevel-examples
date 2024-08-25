@@ -15,7 +15,14 @@ lazy val root = (project in file("."))
 lazy val `cats-examples` = (project in file("cats-examples"))
   .settings(
     name := "cats-examples",
-    libraryDependencies ++= Dependencies.queue
+    libraryDependencies ++= Dependencies.typelevelExamples
+  )
+
+lazy val `http-server` = (project in file("http-server"))
+  .settings(
+    name := "http-server",
+    libraryDependencies ++= Dependencies.httpServer,
+    fork := true
   )
 
 lazy val welcomeSettings = Seq(
