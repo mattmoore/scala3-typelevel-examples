@@ -1,4 +1,4 @@
-package skunkexamples
+package skunkexamples.command
 
 import cats.Monad
 import cats.effect.*
