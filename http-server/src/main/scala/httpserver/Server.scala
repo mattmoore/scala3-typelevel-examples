@@ -1,3 +1,5 @@
+package httpserver
+
 import cats.effect.*
 import com.comcast.ip4s.*
 import org.http4s.HttpRoutes

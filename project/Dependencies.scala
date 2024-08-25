@@ -14,12 +14,21 @@ object Dependencies {
     "org.http4s" %% "http4s-dsl"          % Versions.http4s
   )
 
+  lazy val skunk = Seq(
+    "org.tpolecat" %% "skunk-core" % Versions.skunk
+  )
+
   lazy val typelevelExamples =
     cats ++
       munit
 
+  lazy val postgres =
+    cats ++
+      skunk
+
   lazy val httpServer =
     cats ++
       http4s ++
+      skunk ++
       munit
 }

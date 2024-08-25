@@ -9,13 +9,22 @@ lazy val root = (project in file("."))
     welcomeSettings
   )
   .aggregate(
-    `cats-examples`
+    `cats-examples`,
+    `skunk-examples`,
+    `http-server`
   )
 
 lazy val `cats-examples` = (project in file("cats-examples"))
   .settings(
     name := "cats-examples",
     libraryDependencies ++= Dependencies.typelevelExamples
+  )
+
+lazy val `skunk-examples` = (project in file("skunk-examples"))
+  .settings(
+    name := "skunk-examples",
+    libraryDependencies ++= Dependencies.postgres,
+    fork := true
   )
 
 lazy val `http-server` = (project in file("http-server"))
