@@ -1,66 +1,45 @@
-import cats.effect.IO
-import cats.effect.kernel.Resource
+import cats.effect.{ExitCode, IO, Resource}
+import java.io.*
 import cats.effect.unsafe.implicits.global
-
-import java.io.Closeable
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.nio.charset.StandardCharsets
 
 class ResourceSuite extends munit.FunSuite {
   test("Resource is used for acquiring, using and releasing a resource") {
-    def openRead(name: String): IO[FileInputStream] = IO.blocking {
-      val file = new File(getClass().getClassLoader().getResource(name).getFile())
-      new FileInputStream(file)
-    }
+    def transfer(source: InputStream, destination: OutputStream, buffer: Array[Byte], acc: Long): IO[Long] =
+      for {
+        amount <- IO.blocking(source.read(buffer, 0, buffer.length))
+        count <-
+          if (amount > -1) IO.blocking(destination.write(buffer, 0, amount)) >> transfer(source, destination, buffer, acc + amount)
+          else IO.pure(acc) // End of read stream reached (by java.io.InputStream contract), nothing to write
+      } yield count         // Returns the actual amount of bytes transferred
 
-    def openWrite(name: String): IO[FileOutputStream] = IO.blocking {
-      val file = new File(getClass().getClassLoader().getResource(name).getFile())
-      new FileOutputStream(file)
-    }
+    def inputStream(f: File): Resource[IO, FileInputStream] =
+      Resource.fromAutoCloseable(IO.blocking(new FileInputStream(f)))
 
-    def close(closeable: Closeable): IO[Unit] = IO {
-      closeable.close()
-    }
+    def outputStream(f: File): Resource[IO, FileOutputStream] =
+      Resource.fromAutoCloseable(IO.blocking(new FileOutputStream(f)))
 
-    def fileReadR(name: String): Resource[IO, FileInputStream] =
-      Resource.make[IO, FileInputStream](openRead(name))(file => close(file))
+    def inputOutputStreams(in: File, out: File): Resource[IO, (InputStream, OutputStream)] =
+      for {
+        inStream  <- inputStream(in)
+        outStream <- outputStream(out)
+      } yield (inStream, outStream)
 
-    def fileWriteR(name: String): Resource[IO, FileOutputStream] =
-      Resource.make[IO, FileOutputStream](openWrite(name))(file => close(file))
-
-    def read(stream: FileInputStream): IO[Array[Byte]] = IO {
-      stream.readAllBytes()
-    }
-
-    def write(stream: FileOutputStream, content: Array[Byte]): IO[Unit] = IO {
-      stream.write(content)
-      stream.flush()
-      stream.close()
-    }
-
-    val program: IO[Unit] =
-      (
-        for {
-          in1 <- fileReadR("file1.txt")
-          in2 <- fileReadR("file2.txt")
-          out <- fileWriteR("file3.txt")
-          in3 <- fileReadR("file3.txt")
-        } yield (in1, in2, out, in3)
-      ).use { case (file1, file2, file3, file4) =>
-        for {
-          bytes1 <- read(file1)
-          _      <- IO.println(s"bytes1: ${String(bytes1, StandardCharsets.UTF_8)}")
-          bytes2 <- read(file2)
-          _      <- IO.println(s"bytes2: ${String(bytes2, StandardCharsets.UTF_8)}")
-          _      <- write(file3, bytes1 ++ bytes2)
-          bytes3 <- read(file4)
-          _      <- IO.println(s"Third file is now:\n${String(bytes3, StandardCharsets.UTF_8)}")
-        } yield ()
+    def copy(source: File, destination: File): IO[Long] =
+      inputOutputStreams(source, destination).use { case (in, out) =>
+        transfer(in, out, new Array[Byte](1024 * 10), 0L)
       }
 
-    val actual = program.unsafeRunSync()
-    assertEquals(actual, ())
+    def program(args: List[String]): IO[ExitCode] =
+      for {
+        _ <- IO.raiseWhen(args.length < 2)(new IllegalArgumentException("Need source and destination files"))
+        _ <- IO.println(File(".").getCanonicalFile())
+        source = new File(getClass().getClassLoader().getResource(args.head).getPath())
+        dest   = new File(args.tail.head)
+        count <- copy(source, dest)
+        _     <- IO.println(s"$count bytes copied from ${source.getPath} to ${dest.getPath}")
+      } yield ExitCode.Success
+
+    val actual = program(List("file1.txt", "data/concatenated.txt")).unsafeRunSync()
+    assertEquals(actual, ExitCode.Success)
   }
 }
