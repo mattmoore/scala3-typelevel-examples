@@ -23,7 +23,7 @@ lazy val `cats-examples` = (project in file("cats-examples"))
 lazy val `skunk-examples` = (project in file("skunk-examples"))
   .settings(
     name := "skunk-examples",
-    libraryDependencies ++= Dependencies.postgres,
+    libraryDependencies ++= Dependencies.skunkExamples,
     fork := true
   )
 
@@ -38,6 +38,8 @@ lazy val welcomeSettings = Seq(
   logo      := Embroidery.projectLogo,
   logoColor := scala.Console.RED,
   usefulTasks := Seq(
-    UsefulTask("test", "Run all unit tests.").alias("ut")
+    UsefulTask("http-server/run", "Run http server example.").alias("http"),
+    UsefulTask("cats-examples/test", "Run cats standalone examples.").alias("cats"),
+    UsefulTask("skunk-examples/run", "Run skunk standalone examples.").alias("skunk")
   )
 )
