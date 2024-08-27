@@ -1,17 +1,25 @@
 package httpserver
 
 import cats.effect.*
+import org.typelevel.log4cats.Logger
 
 trait HelloService[F[_]] {
-  def hello(name: String): String
+  def hello(name: String): F[String]
 }
 
-final class HelloServiceImpl[F[_]: Async] extends HelloService[F] {
-  def hello(name: String): String =
-    s"Hello, $name."
+final class HelloServiceImpl(using logger: Logger[IO]) extends HelloService[IO] {
+  def hello(name: String): IO[String] =
+    for {
+      _      <- logger.info(s"Invoked hello($name)")
+      result <- IO.pure(s"Hello, $name.")
+    } yield result
 }
 
 object HelloService {
-  def make[F[_]: Async]: HelloService[F] =
-    new HelloServiceImpl()
+  def make(using logger: Logger[IO]): Resource[IO, HelloService[IO]] =
+    Resource.eval(
+      IO.pure(
+        HelloServiceImpl()
+      )
+    )
 }
