@@ -15,22 +15,27 @@ import org.http4s.server.Server
 import org.typelevel.log4cats.*
 import org.typelevel.log4cats.slf4j.*
 
+import services.*
+
 final case class Resources[F[_]](
     logger: SelfAwareStructuredLogger[F],
     httpServer: Resource[F, Server]
 )
 
-def routes[F[_]: Async](using helloService: HelloService[F]): HttpApp[F] = {
+def helloRoutes[F[_]: Sync](using helloService: HelloService[F]): HttpApp[F] = {
   val dsl = Http4sDsl[F]
   import dsl.*
   HttpRoutes
-    .of[F] { case GET -> Root / "hello" / name =>
-      helloService
-        .hello(name)
-        .flatMap { result =>
-          Ok(result)
-        }
-        .handleErrorWith(_ => InternalServerError())
+    .of[F] {
+      case GET -> Root / "hello" / name =>
+        helloService
+          .hello(name)
+          .flatMap { result =>
+            Ok(result)
+          }
+          .handleErrorWith(_ => InternalServerError())
+      case GET -> Root / "healthcheck" =>
+        Ok()
     }
     .orNotFound
 }
@@ -45,7 +50,7 @@ object Resources {
         .default[F]
         .withHost(ipv4"0.0.0.0")
         .withPort(port"8080")
-        .withHttpApp(routes)
+        .withHttpApp(helloRoutes)
         .withLogger(logger)
         .build
       Async[F].pure {

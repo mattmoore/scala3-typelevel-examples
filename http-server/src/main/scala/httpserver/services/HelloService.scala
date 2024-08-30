@@ -1,4 +1,4 @@
-package httpserver
+package httpserver.services
 
 import cats.Monad
 import cats.syntax.all.*
