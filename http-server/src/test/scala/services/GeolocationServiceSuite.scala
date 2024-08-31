@@ -24,8 +24,8 @@ object GeolocationServiceSuite extends SimpleIOSuite {
         logMessagesBefore.size == 0,
         logMessagesAfter.size == 1,
         logMessagesAfter == List(LogMessage(LogLevel.Info, "Invoked hello(Matt)")),
-        logMessagesAfter(0).level == LogLevel.Info,
-        logMessagesAfter(0).message == "Invoked hello(Matt)"
+        logMessagesAfter.head.level == LogLevel.Info,
+        logMessagesAfter.head.message == "Invoked hello(Matt)",
       )
     }
   }

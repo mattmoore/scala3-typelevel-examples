@@ -56,7 +56,7 @@ object CommandExample extends IOApp {
       host = "localhost",
       user = "jimmy",
       database = "world",
-      password = Some("banana")
+      password = Some("banana"),
     )
 
   // a resource that creates and drops a temporary table

@@ -15,27 +15,27 @@ class SemigroupSuite extends munit.FunSuite {
       if (x.identityId == y.identityId) {
         SessionState(
           identityId = y.identityId,
-          sessions = x.sessions ++ y.sessions
+          sessions = x.sessions ++ y.sessions,
         )
       } else y
   }
 
   val sessionState1 = SessionState(
     identityId = 1,
-    sessions = List(Session(1, 1000L))
+    sessions = List(Session(1, 1000L)),
   )
 
   val sessionState2 = SessionState(
     identityId = 1,
-    List(Session(2, 2000L))
+    List(Session(2, 2000L)),
   )
 
   val expected = SessionState(
     identityId = 1,
     List(
       Session(1, 1000L),
-      Session(2, 2000L)
-    )
+      Session(2, 2000L),
+    ),
   )
 
   test("Semigroup allows us to combine types together") {

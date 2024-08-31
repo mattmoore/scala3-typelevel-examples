@@ -32,7 +32,7 @@ class BackpressureSuite extends munit.FunSuite {
     val (actual1, actual2) = program.unsafeRunSync()
     assert(
       (actual1, actual2) == (None, Option(1)) ||
-        (actual1, actual2) == (Option(1), None)
+        (actual1, actual2) == (Option(1), None),
     )
   }
 }

@@ -14,7 +14,7 @@ object QueryExample extends IOApp {
       host = "localhost",
       user = "jimmy",
       database = "world",
-      password = Some("banana")
+      password = Some("banana"),
     )
 
   // a data model

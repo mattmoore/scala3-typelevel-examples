@@ -13,7 +13,7 @@ object HelloSkunk extends IOApp {
       port = 5432,
       user = "jimmy",
       database = "world",
-      password = Some("banana")
+      password = Some("banana"),
     )
 
   def run(args: List[String]): IO[ExitCode] =

@@ -25,8 +25,7 @@ object PetService {
 
   // command to insert a pet
   private val insertOne: Command[Pet] =
-    sql"INSERT INTO pets VALUES ($varchar, $int2)"
-      .command
+    sql"INSERT INTO pets VALUES ($varchar, $int2)".command
       .to[Pet]
 
   // query to select all pets
@@ -49,11 +48,10 @@ object PetService {
               for {
                 _  <- IO.println(s"Trying to insert $p")
                 sp <- xa.savepoint
-                _  <- pc.execute(p).recoverWith {
-                        case SqlState.UniqueViolation(ex) =>
-                         IO.println(s"Unique violation: ${ex.constraintName.getOrElse("<unknown>")}, rolling back...") *>
-                          xa.rollback(sp)
-                      }
+                _ <- pc.execute(p).recoverWith { case SqlState.UniqueViolation(ex) =>
+                  IO.println(s"Unique violation: ${ex.constraintName.getOrElse("<unknown>")}, rolling back...") *>
+                    xa.rollback(sp)
+                }
               } yield ()
             }
           }
@@ -69,10 +67,10 @@ object TransactionExample extends IOApp {
   // a source of sessions
   val session: Resource[IO, Session[IO]] =
     Session.single(
-      host     = "localhost",
-      user     = "jimmy",
+      host = "localhost",
+      user = "jimmy",
       database = "world",
-      password = Some("banana")
+      password = Some("banana"),
     )
 
   // a resource that creates and drops a temporary table
@@ -85,9 +83,7 @@ object TransactionExample extends IOApp {
   // We can monitor the changing transaction status by tapping into the provided `fs2.Signal`
   def withTransactionStatusLogger[A](ss: Session[IO]): Resource[IO, Unit] = {
     val alloc: IO[Fiber[IO, Throwable, Unit]] =
-      ss.transactionStatus
-        .discrete
-        .changes
+      ss.transactionStatus.discrete.changes
         .evalMap(s => IO.println(s"xa status: $s"))
         .compile
         .drain
@@ -107,9 +103,9 @@ object TransactionExample extends IOApp {
   // Some test data
   val pets = List(
     Pet("Alice", 3),
-    Pet("Bob",  42),
-    Pet("Bob",  21),
-    Pet("Steve", 9)
+    Pet("Bob", 42),
+    Pet("Bob", 21),
+    Pet("Steve", 9),
   )
 
   // Our entry point

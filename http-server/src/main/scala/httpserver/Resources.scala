@@ -12,7 +12,7 @@ import services.*
 
 final case class Resources[F[_]](
     logger: SelfAwareStructuredLogger[F],
-    httpServer: Resource[F, Server]
+    httpServer: Resource[F, Server],
 )
 
 object Resources {
@@ -26,7 +26,7 @@ object Resources {
 
       Resources[F](
         logger,
-        httpServer
+        httpServer,
       ).pure
     }
 }
