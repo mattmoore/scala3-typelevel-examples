@@ -28,6 +28,9 @@ object Dependencies {
         ip4s ++
         logging ++
         weaver
+
+    lazy val httpServerIt =
+      httpServer
   }
 
   lazy val catsCore         = "org.typelevel" %% "cats-core"          % Versions.catsCore
