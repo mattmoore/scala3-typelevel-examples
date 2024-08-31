@@ -1,35 +1,31 @@
 import cats.effect.Async
 import cats.effect.IO
 import cats.effect.Ref
-import cats.effect.unsafe.implicits.global
 import cats.syntax.all.*
+import weaver.*
 
-class RefSuite extends munit.FunSuite {
+object RefSuite extends SimpleIOSuite {
   test("Simple Ref example") {
-    val program: IO[Int] =
-      for {
-        stateRef <- IO.ref(0)
-        state1   <- stateRef.get
-        _        <- stateRef.update(x => x + 1)
-        state2   <- stateRef.get
-      } yield state2
-
-    val actual = program.unsafeRunSync()
-    assertEquals(actual, 1)
+    for {
+      stateRef <- IO.ref(0)
+      state1   <- stateRef.get
+      _        <- stateRef.update(x => x + 1)
+      state2   <- stateRef.get
+    } yield expect.all(
+      state2 == 1,
+    )
   }
 
   test("Ref is all about atomic concurrent operations") {
-    val program: IO[Int] =
-      for {
-        state  <- IO.ref(0)
-        fibers <- state.update(_ + 1).start.replicateA(100)
-        _      <- fibers.traverse(_.join).void
-        value  <- state.get
-        _      <- IO.println(s"The final value is $value")
-      } yield value
-
-    val actual = program.unsafeRunSync()
-    assertEquals(actual, 100)
+    for {
+      state  <- IO.ref(0)
+      fibers <- state.update(_ + 1).start.replicateA(100)
+      _      <- fibers.traverse(_.join).void
+      value  <- state.get
+      _      <- IO.println(s"The final value is $value")
+    } yield expect.all(
+      value == 100,
+    )
   }
 
   test("Ref can be used to stub database tables in unit tests") {
@@ -70,17 +66,16 @@ class RefSuite extends munit.FunSuite {
         }
     }
 
-    val program: IO[(List[PersonRow], List[PersonRow])] = for {
+    for {
       tableState <- Ref[IO].of(List.empty[PersonRow])
       repo          = StubbedRepository(tableState)
       personService = PersonService(repo)
-      stateBefore <- tableState.get
-      _           <- personService.put(Person(1, "Matt"))
-      stateAfter  <- tableState.get
-    } yield (stateBefore, stateAfter)
-
-    val (rowsBefore, rowsAfter) = program.unsafeRunSync()
-    assertEquals(rowsBefore, List.empty)
-    assertEquals(rowsAfter, List(PersonRow(1, "Matt")))
+      rowsBefore <- tableState.get
+      _          <- personService.put(Person(1, "Matt"))
+      rowsAfter  <- tableState.get
+    } yield expect.all(
+      rowsBefore == List.empty,
+      rowsAfter == List(PersonRow(1, "Matt")),
+    )
   }
 }

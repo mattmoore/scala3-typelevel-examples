@@ -1,9 +1,9 @@
 import cats.effect.IO
 import cats.effect.kernel.Deferred
-import cats.effect.unsafe.implicits.global
 import cats.syntax.all.*
+import weaver.*
 
-class LatchSuite extends munit.FunSuite {
+object LatchSuite extends SimpleIOSuite {
   test("Combine Ref and Deferred to count down latches, releasing once all latches are gone") {
     trait Latch {
       def release: IO[Unit]
@@ -51,7 +51,8 @@ class LatchSuite extends munit.FunSuite {
         _ <- IO.println("Got past the latch")
       } yield ()
 
-    val actual = program.unsafeRunSync()
-    assertEquals(actual, ())
+    for {
+      result <- program
+    } yield expect(result == ())
   }
 }

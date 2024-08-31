@@ -1,9 +1,9 @@
 import cats.effect.*
 import cats.effect.std.CountDownLatch
-import cats.effect.unsafe.implicits.global
 import cats.implicits.*
+import weaver.*
 
-class CountDownLatchSuite extends munit.FunSuite {
+object CountDownLatchSuite extends SimpleIOSuite {
   test("CountDownLatch - a one-shot concurrency primitive that blocks any fibers that wait on it") {
     val program: IO[Unit] =
       for {
@@ -15,7 +15,8 @@ class CountDownLatchSuite extends munit.FunSuite {
         _ <- f.join
       } yield ()
 
-    val actual = program.unsafeRunSync()
-    assertEquals(actual, ())
+    for {
+      result <- program
+    } yield expect(result == ())
   }
 }

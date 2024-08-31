@@ -1,15 +1,6 @@
 import sbt.*
 
 object Dependencies {
-  lazy val munit = Seq(
-    "org.scalameta" %% "munit"             % Versions.munit           % Test,
-    "org.typelevel" %% "munit-cats-effect" % Versions.munitCatsEffect % Test,
-  )
-
-  lazy val weaver = Seq(
-    "com.disneystreaming" %% "weaver-cats" % Versions.weaver,
-  )
-
   lazy val catsCore         = "org.typelevel" %% "cats-core"          % Versions.catsCore
   lazy val catsKernel       = "org.typelevel" %% "cats-kernel"        % Versions.catsCore
   lazy val catsEffect       = "org.typelevel" %% "cats-effect"        % Versions.catsEffect
@@ -70,9 +61,15 @@ object Dependencies {
     "org.typelevel" %% "twiddles-core" % Versions.twiddles,
   )
 
+  lazy val weaver = Seq(
+    "com.disneystreaming" %% "weaver-cats" % Versions.weaver,
+  )
+
+  // Subproject deps
+
   lazy val typelevelExamples =
-    cats.map(_ % Test) ++
-      munit
+    cats ++
+      weaver
 
   lazy val skunkExamples =
     cats ++

@@ -1,8 +1,8 @@
 import cats.effect.{ExitCode, IO, Resource}
 import java.io.*
-import cats.effect.unsafe.implicits.global
+import weaver.*
 
-class ResourceSuite extends munit.FunSuite {
+object ResourceSuite extends SimpleIOSuite {
   test("Resource is used for acquiring, using and releasing a resource") {
     def transfer(source: InputStream, destination: OutputStream, buffer: Array[Byte], acc: Long): IO[Long] =
       for {
@@ -38,7 +38,8 @@ class ResourceSuite extends munit.FunSuite {
         _     <- IO.println(s"$count bytes copied from ${source.getPath} to ${dest.getPath}")
       } yield ExitCode.Success
 
-    val actual = program(List("file1.txt", "data/concatenated.txt")).unsafeRunSync()
-    assertEquals(actual, ExitCode.Success)
+    for {
+      result <- program(List("file1.txt", "data/concatenated.txt"))
+    } yield expect(result == ExitCode.Success)
   }
 }

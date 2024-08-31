@@ -1,24 +1,28 @@
 import cats.data.Kleisli
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
+import weaver.*
 
-class KleisliSuite extends munit.FunSuite {
-  test("Regular functions - no context (IO), ergo no Kleisli") {
+object KleisliSuite extends SimpleIOSuite {
+  pureTest("Regular functions - no context (IO), ergo no Kleisli") {
     val getNumberFromDb: Unit => Int    = _ => 2
     val processNumber: Int => Int       = num => num * 2
     val writeNumberToDb: Int => Boolean = _ => true
 
     val combo1: Unit => Boolean = _ => writeNumberToDb(processNumber(getNumberFromDb(())))
     println(s"combo1: ${combo1(())}")
-    assertEquals(combo1(()), true)
 
     val combo2: Unit => Boolean = writeNumberToDb compose processNumber compose getNumberFromDb
     println(s"combo2: ${combo2(())}")
-    assertEquals(combo2(()), true)
 
     val combo3: Unit => Boolean = getNumberFromDb andThen processNumber andThen writeNumberToDb
     println(s"combo3: ${combo3(())}")
-    assertEquals(combo3(()), true)
+
+    expect.all(
+      combo1(()) == true,
+      combo2(()) == true,
+      combo3(()) == true,
+    )
   }
 
   test("Functions that have a context (IO) - still without Kleisli") {
@@ -36,7 +40,6 @@ class KleisliSuite extends munit.FunSuite {
         }
       }
     println(s"comboFlatMap: ${comboFlatMap(()).unsafeRunSync()}")
-    assertEquals(comboFlatMap(()).unsafeRunSync(), true)
 
     // Nesting flatMaps is unweildy.
     // Another way to do this without nesting flatMaps is to use a for comprehension:
@@ -47,7 +50,14 @@ class KleisliSuite extends munit.FunSuite {
         result    <- writeNumberToDb(processed)
       } yield result
     println(s"comboForComp: ${comboForComp(()).unsafeRunSync()}")
-    assertEquals(comboForComp(()).unsafeRunSync(), true)
+
+    for {
+      flatMapResult <- comboFlatMap(())
+      forCompResult <- comboForComp(())
+    } yield expect.all(
+      flatMapResult == true,
+      forCompResult == true,
+    )
   }
 
   test("Kleisli lets us compose functions with a context (IO)") {
@@ -72,7 +82,6 @@ class KleisliSuite extends munit.FunSuite {
         processNumberK andThen
         writeNumberToDbK
     println(s"comboKleisli1: ${comboKleisli1(())}")
-    assertEquals(comboKleisli1(()).unsafeRunSync(), true)
 
     // Defining new Kleisli functions to lift the original IO functions is extra code and a bit tedious.
     // There's another way to do this that's much nicer.
@@ -85,6 +94,13 @@ class KleisliSuite extends munit.FunSuite {
         writeNumberToDb
 
     println(s"comboKleisli2: ${comboKleisli2(())}")
-    assertEquals(comboKleisli2(()).unsafeRunSync(), true)
+
+    for {
+      kleisli1 <- comboKleisli1(())
+      kleisli2 <- comboKleisli2(())
+    } yield expect.all(
+      kleisli1 == true,
+      kleisli2 == true,
+    )
   }
 }

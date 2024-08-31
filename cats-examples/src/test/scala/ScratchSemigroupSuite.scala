@@ -1,8 +1,10 @@
+import weaver.*
+
 // To demonstrate how we can implement semigroup ourselves, without relying on cats.
 // Note that we have no imports in this file from cats.
 // I'm only importing my own custom-defined instances and syntax.
 
-class ScratchSemigroupSuite extends munit.FunSuite {
+object ScratchSemigroupSuite extends SimpleIOSuite {
   // We define the case classes that will hold user session data.
   case class Session(sessionId: Int, creationTime: Long)
   case class SessionState(identityId: Int, sessions: List[Session])
@@ -50,15 +52,15 @@ class ScratchSemigroupSuite extends munit.FunSuite {
     ),
   )
 
-  test("Let's define our own Semigroup instead of relying on cats") {
+  pureTest("Let's define our own Semigroup instead of relying on cats") {
     // Now we can import our instances...
     import SemigroupInstances.given
     // ...and combine:
     val actual = Semigroup[SessionState].combine(sessionState1, sessionState2)
-    assertEquals(actual, expected)
+    expect(actual == expected)
   }
 
-  test("Let's define extension methods just like cats does") {
+  pureTest("Let's define extension methods just like cats does") {
     object SemigroupSyntax {
       extension [T](a: T)
         infix def combine(b: T)(using semigroup: Semigroup[T]): T =
@@ -77,14 +79,15 @@ class ScratchSemigroupSuite extends munit.FunSuite {
 
     // Calling it "normally" with dot notation and parens:
     val actual1 = sessionState1.combine(sessionState2)
-    assertEquals(actual1, expected)
-
     // With infix notation:
     val actual2 = sessionState1 combine sessionState2
-    assertEquals(actual2, expected)
-
     // With the infix symbolic syntax:
     val actual3 = sessionState1 |+| sessionState2
-    assertEquals(actual3, expected)
+
+    expect.all(
+      actual1 == expected,
+      actual2 == expected,
+      actual3 == expected,
+    )
   }
 }

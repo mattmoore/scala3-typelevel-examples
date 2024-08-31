@@ -1,10 +1,10 @@
 import cats.effect.IO
 import cats.effect.kernel.Deferred
-import cats.effect.unsafe.implicits.global
+import weaver.*
 
 import scala.concurrent.duration.*
 
-class DeferredSuite extends munit.FunSuite {
+object DeferredSuite extends SimpleIOSuite {
   test("Deferred is all about blocking fibers until a condition is met") {
     def countdown(n: Int, pause: Int, waiter: Deferred[IO, Unit]): IO[Unit] =
       IO.println(n) *> IO.defer {
@@ -26,7 +26,8 @@ class DeferredSuite extends munit.FunSuite {
         _      <- IO.println("blast off!")
       } yield ()
 
-    val actual = program.unsafeRunSync()
-    assertEquals(actual, ())
+    for {
+      result <- program
+    } yield expect(result == ())
   }
 }

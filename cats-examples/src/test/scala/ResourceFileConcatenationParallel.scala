@@ -1,9 +1,9 @@
 import cats.effect.{ExitCode, IO, Resource}
 import cats.syntax.all.*
 import java.io.*
-import cats.effect.unsafe.implicits.global
+import weaver.*
 
-class ResourceFileConcatenationParallel extends munit.FunSuite {
+object ResourceFileConcatenationParallel extends SimpleIOSuite {
   test("Resource is used for acquiring, using and releasing a resource") {
     def transfer(source: InputStream, destination: OutputStream, buffer: Array[Byte], acc: Long): IO[Long] =
       for {
@@ -47,7 +47,8 @@ class ResourceFileConcatenationParallel extends munit.FunSuite {
         _     <- IO.println(s"$count bytes copied from ${sources.map(_.getPath())} to ${dest.getPath}")
       } yield ExitCode.Success
 
-    val actual = program(List("file1.txt", "file2.txt", "file3.txt", "data/concatenated.txt")).unsafeRunSync()
-    assertEquals(actual, ExitCode.Success)
+    for {
+      result <- program(List("file1.txt", "file2.txt", "file3.txt", "data/concatenated.txt"))
+    } yield expect(result == ExitCode.Success)
   }
 }

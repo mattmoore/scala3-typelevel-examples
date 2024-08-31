@@ -1,10 +1,10 @@
 import cats.effect.IO
 import cats.effect.std.Backpressure
-import cats.effect.unsafe.implicits.global
+import weaver.*
 
 import scala.concurrent.duration.*
 
-class BackpressureSuite extends munit.FunSuite {
+object BackpressureSuite extends SimpleIOSuite {
   test("BackpressureSuite with Lossless - running effects with rate-limiting strategy - effects will run in the presence of backpressure") {
     val program =
       for {
@@ -15,8 +15,9 @@ class BackpressureSuite extends munit.FunSuite {
         res2         <- f2.joinWithNever
       } yield (res1, res2)
 
-    val actual = program.unsafeRunSync()
-    assertEquals(actual, (Option(1), Option(1)))
+    for {
+      result <- program
+    } yield expect(result == (Option(1), Option(1)))
   }
 
   test("BackpressureSuite with Lossy - running effects with rate-limiting strategy") {
@@ -29,10 +30,11 @@ class BackpressureSuite extends munit.FunSuite {
         res2         <- f2.joinWithNever
       } yield (res1, res2)
 
-    val (actual1, actual2) = program.unsafeRunSync()
-    assert(
-      (actual1, actual2) == (None, Option(1)) ||
-        (actual1, actual2) == (Option(1), None),
+    for {
+      result <- program
+    } yield expect.all(
+      result == (None, Option(1)) ||
+        result == (Option(1), None),
     )
   }
 }

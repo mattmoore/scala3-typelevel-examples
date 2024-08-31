@@ -1,6 +1,7 @@
 import cats.kernel.Semigroup
+import weaver.*
 
-class SemigroupSuite extends munit.FunSuite {
+object SemigroupSuite extends SimpleIOSuite {
   // We define the case classes that will hold user session data.
   case class Session(sessionId: Int, creationTime: Long)
   case class SessionState(identityId: Int, sessions: List[Session])
@@ -38,26 +39,26 @@ class SemigroupSuite extends munit.FunSuite {
     ),
   )
 
-  test("Semigroup allows us to combine types together") {
+  pureTest("Semigroup allows us to combine types together") {
     val actual = Semigroup[SessionState].combine(sessionState1, sessionState2)
-    assertEquals(actual, expected)
+    expect(actual == expected)
   }
 
-  test("Syntax helpers") {
+  pureTest("Syntax helpers") {
     // There's also a convenient method we can use |+|
     // This requires an import:
     import cats.implicits.catsSyntaxSemigroup
 
     val actual = sessionState1 combine sessionState2
-    assertEquals(actual, expected)
+    expect(actual == expected)
   }
 
-  test("Symbolic syntax") {
+  pureTest("Symbolic syntax") {
     // For the symbolic syntax, we still need to import the implicits:
     import cats.implicits.catsSyntaxSemigroup
 
     // And now we can use |+|
     val actual = sessionState1 |+| sessionState2
-    assertEquals(actual, expected)
+    expect(actual == expected)
   }
 }
