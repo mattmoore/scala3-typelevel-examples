@@ -17,20 +17,20 @@ lazy val root = (project in file("."))
 lazy val `cats-examples` = (project in file("cats-examples"))
   .settings(
     name := "cats-examples",
-    libraryDependencies ++= Dependencies.typelevelExamples,
+    libraryDependencies ++= Dependencies.Projects.typelevelExamples,
   )
 
 lazy val `skunk-examples` = (project in file("skunk-examples"))
   .settings(
     name := "skunk-examples",
-    libraryDependencies ++= Dependencies.skunkExamples,
+    libraryDependencies ++= Dependencies.Projects.skunkExamples,
     fork := true,
   )
 
 lazy val `http-server` = (project in file("http-server"))
   .settings(
     name := "http-server",
-    libraryDependencies ++= Dependencies.httpServer,
+    libraryDependencies ++= Dependencies.Projects.httpServer,
     testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
     fork := true,
   )

@@ -1,6 +1,35 @@
 import sbt.*
 
 object Dependencies {
+  object Projects {
+    lazy val typelevelExamples =
+      cats ++
+        weaver
+
+    lazy val skunkExamples =
+      cats ++
+        fs2 ++
+        natchez ++
+        skunk ++
+        sourcepos ++
+        twiddles
+
+    lazy val httpServer =
+      Seq(
+        catsCore,
+        catsEffect,
+        catsEffectKernel,
+        fs2Io,
+        http4sCore,
+        http4sDsl,
+        http4sServer,
+        http4sEmberServer,
+      ) ++
+        ip4s ++
+        logging ++
+        weaver
+  }
+
   lazy val catsCore         = "org.typelevel" %% "cats-core"          % Versions.catsCore
   lazy val catsKernel       = "org.typelevel" %% "cats-kernel"        % Versions.catsCore
   lazy val catsEffect       = "org.typelevel" %% "cats-effect"        % Versions.catsEffect
@@ -64,33 +93,4 @@ object Dependencies {
   lazy val weaver = Seq(
     "com.disneystreaming" %% "weaver-cats" % Versions.weaver,
   )
-
-  // Subproject deps
-
-  lazy val typelevelExamples =
-    cats ++
-      weaver
-
-  lazy val skunkExamples =
-    cats ++
-      fs2 ++
-      natchez ++
-      skunk ++
-      sourcepos ++
-      twiddles
-
-  lazy val httpServer =
-    Seq(
-      catsCore,
-      catsEffect,
-      catsEffectKernel,
-      fs2Io,
-      http4sCore,
-      http4sDsl,
-      http4sServer,
-      http4sEmberServer,
-    ) ++
-      ip4s ++
-      logging ++
-      weaver
 }
