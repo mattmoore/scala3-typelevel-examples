@@ -39,6 +39,7 @@ lazy val `http-server-it` = (project in file("http-server-it"))
   .dependsOn(`http-server`)
   .settings(
     libraryDependencies ++= Dependencies.Projects.httpServerIt,
+    fork := true,
   )
 
 addCommandAlias("formatAll", "scalafmtAll; scalafmtSbt")

@@ -10,6 +10,7 @@ object Versions {
   val natchez         = "0.3.5"
   val skunk           = "0.6.4"
   val sourcepos       = "1.1.0"
+  val testContainers  = "0.41.4"
   val twiddles        = "0.6.2"
   val munit           = "1.0.1"
   val munitCatsEffect = "2.0.0"

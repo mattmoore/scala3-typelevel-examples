@@ -30,7 +30,8 @@ object Dependencies {
         weaver
 
     lazy val httpServerIt =
-      httpServer
+      httpServer ++
+        testContainers
   }
 
   lazy val catsCore         = "org.typelevel" %% "cats-core"          % Versions.catsCore
@@ -87,6 +88,11 @@ object Dependencies {
 
   lazy val sourcepos = Seq(
     "org.tpolecat" %% "sourcepos" % Versions.sourcepos,
+  )
+
+  lazy val testContainers = Seq(
+    "com.dimafeng" %% "testcontainers-scala"            % Versions.testContainers,
+    "com.dimafeng" %% "testcontainers-scala-postgresql" % Versions.testContainers,
   )
 
   lazy val twiddles = Seq(
