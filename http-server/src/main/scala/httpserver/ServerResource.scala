@@ -17,7 +17,7 @@ object ServerResource {
   def apply[F[_]: Async: Network](using
       logger: Logger[F],
       helloService: HelloService[F],
-      geolocationService: GeoLocationService[F]
+      geolocationService: GeolocationService[F]
   ): Resource[F, Server] =
     val dsl = Http4sDsl[F]
     import dsl.*

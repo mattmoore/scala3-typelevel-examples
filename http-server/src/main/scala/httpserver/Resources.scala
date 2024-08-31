@@ -21,7 +21,7 @@ object Resources {
       given LoggerFactory[F]                     = Slf4jFactory.create[F]
       given logger: SelfAwareStructuredLogger[F] = LoggerFactory[F].getLogger
       given HelloService[F]                      = HelloService()
-      given GeoLocationService[F]                = GeoLocationService()
+      given GeolocationService[F]                = GeolocationService()
       val httpServer: Resource[F, Server]        = ServerResource[F]
 
       Resources[F](

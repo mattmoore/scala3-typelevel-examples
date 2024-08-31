@@ -4,12 +4,12 @@ import cats.Monad
 import cats.syntax.all.*
 import org.typelevel.log4cats.Logger
 
-trait GeoLocationService[F[_]] {
+trait GeolocationService[F[_]] {
   def hello(name: String): F[String]
 }
 
-object GeoLocationService {
-  def apply[F[_]: Monad: Logger](): GeoLocationService[F] = new GeoLocationService[F] {
+object GeolocationService {
+  def apply[F[_]: Monad: Logger](): GeolocationService[F] = new GeolocationService[F] {
     override def hello(name: String): F[String] =
       for {
         _      <- Logger[F].info(s"Invoked hello($name)")
