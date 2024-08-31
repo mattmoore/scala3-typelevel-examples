@@ -27,6 +27,7 @@ object Dependencies {
       ) ++
         ip4s ++
         logging ++
+        skunk ++
         weaver
 
     lazy val httpServerIt =
