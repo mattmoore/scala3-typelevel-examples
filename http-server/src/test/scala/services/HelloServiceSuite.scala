@@ -9,11 +9,13 @@ import org.typelevel.log4cats.extras.LogLevel
 import weaver.*
 
 object HelloServiceSuite extends SimpleIOSuite {
+  private type F[A] = IO[A]
+
   test("hello returns a greeting with the name interpolated") {
     for {
-      logMessages <- Ref[IO].of(List.empty[LogMessage])
-      given Logger[IO] = MockLogger[IO](logMessages)
-      helloService     = HelloService[IO]()
+      logMessages <- Ref[F].of(List.empty[LogMessage])
+      given Logger[F] = MockLogger[F](logMessages)
+      helloService    = HelloService[F]()
 
       logMessagesBefore <- logMessages.get
       result            <- helloService.hello("Matt")

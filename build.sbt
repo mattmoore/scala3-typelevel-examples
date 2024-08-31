@@ -6,25 +6,25 @@ ThisBuild / Test / parallelExecution := false
 lazy val root = (project in file("."))
   .settings(
     name := "scala3-typelevel-examples",
-    welcomeSettings
+    welcomeSettings,
   )
   .aggregate(
     `cats-examples`,
     `skunk-examples`,
-    `http-server`
+    `http-server`,
   )
 
 lazy val `cats-examples` = (project in file("cats-examples"))
   .settings(
     name := "cats-examples",
-    libraryDependencies ++= Dependencies.typelevelExamples
+    libraryDependencies ++= Dependencies.typelevelExamples,
   )
 
 lazy val `skunk-examples` = (project in file("skunk-examples"))
   .settings(
     name := "skunk-examples",
     libraryDependencies ++= Dependencies.skunkExamples,
-    fork := true
+    fork := true,
   )
 
 lazy val `http-server` = (project in file("http-server"))
@@ -32,15 +32,18 @@ lazy val `http-server` = (project in file("http-server"))
     name := "http-server",
     libraryDependencies ++= Dependencies.httpServer,
     testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
-    fork := true
+    fork := true,
   )
+
+addCommandAlias("formatAll", "scalafmtAll; scalafmtSbt")
 
 lazy val welcomeSettings = Seq(
   logo      := Embroidery.projectLogo,
   logoColor := scala.Console.RED,
   usefulTasks := Seq(
+    UsefulTask("formatAll", "Format all Scala code.").alias("f"),
     UsefulTask("http-server/run", "Run http server example.").alias("http"),
     UsefulTask("cats-examples/test", "Run cats standalone examples.").alias("cats"),
-    UsefulTask("skunk-examples/run", "Run skunk standalone examples.").alias("skunk")
-  )
+    UsefulTask("skunk-examples/run", "Run skunk standalone examples.").alias("skunk"),
+  ),
 )

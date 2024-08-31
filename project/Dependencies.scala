@@ -3,11 +3,11 @@ import sbt.*
 object Dependencies {
   lazy val munit = Seq(
     "org.scalameta" %% "munit"             % Versions.munit           % Test,
-    "org.typelevel" %% "munit-cats-effect" % Versions.munitCatsEffect % Test
+    "org.typelevel" %% "munit-cats-effect" % Versions.munitCatsEffect % Test,
   )
 
   lazy val weaver = Seq(
-    "com.disneystreaming" %% "weaver-cats" % Versions.weaver
+    "com.disneystreaming" %% "weaver-cats" % Versions.weaver,
   )
 
   lazy val catsCore         = "org.typelevel" %% "cats-core"          % Versions.catsCore
@@ -20,14 +20,14 @@ object Dependencies {
     catsKernel,
     catsEffect,
     catsEffectStd,
-    catsEffectKernel
+    catsEffectKernel,
   )
 
   lazy val fs2Core = "co.fs2" %% "fs2-core" % Versions.fs2
   lazy val fs2Io   = "co.fs2" %% "fs2-io"   % Versions.fs2
   lazy val fs2 = Seq(
     fs2Core,
-    fs2Io
+    fs2Io,
   )
 
   lazy val http4sCore        = "org.http4s" %% "http4s-core"         % Versions.http4s
@@ -40,34 +40,34 @@ object Dependencies {
     http4sServer,
     http4sEmberClient,
     http4sEmberServer,
-    http4sDsl
+    http4sDsl,
   )
 
   lazy val ip4s = Seq(
-    "com.comcast" %% "ip4s-core" % Versions.ip4s
+    "com.comcast" %% "ip4s-core" % Versions.ip4s,
   )
 
   lazy val log4catsCore = "org.typelevel" %% "log4cats-core"   % Versions.log4cats
   lazy val logback      = "ch.qos.logback" % "logback-classic" % Versions.logback
   lazy val logging = Seq(
     log4catsCore,
-    logback
+    logback,
   )
 
   lazy val natchez = Seq(
-    "org.tpolecat" %% "natchez-core" % Versions.natchez
+    "org.tpolecat" %% "natchez-core" % Versions.natchez,
   )
 
   lazy val skunk = Seq(
-    "org.tpolecat" %% "skunk-core" % Versions.skunk
+    "org.tpolecat" %% "skunk-core" % Versions.skunk,
   )
 
   lazy val sourcepos = Seq(
-    "org.tpolecat" %% "sourcepos" % Versions.sourcepos
+    "org.tpolecat" %% "sourcepos" % Versions.sourcepos,
   )
 
   lazy val twiddles = Seq(
-    "org.typelevel" %% "twiddles-core" % Versions.twiddles
+    "org.typelevel" %% "twiddles-core" % Versions.twiddles,
   )
 
   lazy val typelevelExamples =
@@ -91,7 +91,7 @@ object Dependencies {
       http4sCore,
       http4sDsl,
       http4sServer,
-      http4sEmberServer
+      http4sEmberServer,
     ) ++
       ip4s ++
       logging ++

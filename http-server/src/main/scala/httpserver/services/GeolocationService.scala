@@ -1,19 +1,23 @@
 package httpserver.services
 
-import cats.Monad
+import cats.effect.*
 import cats.syntax.all.*
+import httpserver.domain.*
+import httpserver.repositories.*
 import org.typelevel.log4cats.Logger
 
 trait GeolocationService[F[_]] {
-  def hello(name: String): F[String]
+  def getCoords(address: Address): F[Option[GpsCoords]]
 }
 
 object GeolocationService {
-  def apply[F[_]: Monad: Logger](): GeolocationService[F] = new GeolocationService[F] {
-    override def hello(name: String): F[String] =
+  def apply[F[_]: Async: Logger]()(using
+      repo: AddressRepository[F],
+  ): GeolocationService[F] = new GeolocationService[F] {
+    override def getCoords(address: Address): F[Option[GpsCoords]] =
       for {
-        _      <- Logger[F].info(s"Invoked hello($name)")
-        result <- Monad[F].pure(s"Hello, $name.")
+        _      <- Logger[F].info(s"Invoked getCoords($address)")
+        result <- repo.getByAddress(address).map(_.map(_.coords))
       } yield result
   }
 }

@@ -8,6 +8,7 @@ import org.http4s.server.Server
 import org.typelevel.log4cats.*
 import org.typelevel.log4cats.slf4j.*
 
+import repositories.*
 import services.*
 
 final case class Resources[F[_]](
@@ -21,6 +22,7 @@ object Resources {
       given LoggerFactory[F]                     = Slf4jFactory.create[F]
       given logger: SelfAwareStructuredLogger[F] = LoggerFactory[F].getLogger
       given HelloService[F]                      = HelloService()
+      given AddressRepository[F]                 = AddressRepository()
       given GeolocationService[F]                = GeolocationService()
       val httpServer: Resource[F, Server]        = ServerResource[F]
 

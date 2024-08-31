@@ -32,17 +32,19 @@ object ServerResource {
         Ok()
     }
 
-    val geolocationRoutes = HttpRoutes.of[F] {
-      case GET -> Root / "hello" / name =>
-        geolocationService
-          .hello(name)
-          .flatMap(Ok(_))
-          .handleErrorWith(_ => InternalServerError())
-      case GET -> Root / "healthcheck" =>
-        Ok()
-    }
+    // TODO: Add this back with proper circe parsing
+    // val geolocationRoutes = HttpRoutes.of[F] {
+    //  case GET -> Root / "coords" / address =>
+    //    geolocationService
+    //      .getCoords(address)
+    //      .flatMap(Ok(_))
+    //      .handleErrorWith(_ => InternalServerError())
+    //  case GET -> Root / "healthcheck" =>
+    //    Ok()
+    // }
 
-    val allRoutes = (helloRoutes <+> geolocationRoutes).orNotFound
+    // val allRoutes = (helloRoutes <+> geolocationRoutes).orNotFound
+    val allRoutes = (helloRoutes).orNotFound
 
     EmberServerBuilder
       .default[F]
