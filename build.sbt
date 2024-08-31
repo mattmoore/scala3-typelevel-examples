@@ -31,6 +31,7 @@ lazy val `http-server` = (project in file("http-server"))
   .settings(
     name := "http-server",
     libraryDependencies ++= Dependencies.httpServer,
+    testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
     fork := true
   )
 
