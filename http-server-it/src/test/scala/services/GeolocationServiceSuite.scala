@@ -2,11 +2,13 @@ package httpserver.services
 
 import cats.effect.*
 import cats.syntax.all.*
+import com.dimafeng.testcontainers.PostgreSQLContainer
 import httpserver.MockLogger
 import httpserver.MockLogger.*
 import httpserver.domain.*
 import httpserver.repositories.AddressRepository
 import httpserver.services.*
+import org.testcontainers.utility.DockerImageName
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.extras.LogLevel
 import weaver.*
@@ -19,6 +21,7 @@ object GeolocationServiceSuite extends IOSuite {
       logMessages: Ref[F, List[LogMessage]],
       logger: Logger[F],
       geolocationService: GeolocationService[F],
+      postgresContainer: PostgreSQLContainer,
   )
 
   val addresses = List(
@@ -35,6 +38,15 @@ object GeolocationServiceSuite extends IOSuite {
     for {
       logMessages <- Resource.eval(F.ref(List.empty[LogMessage]))
       logger = MockLogger[F](logMessages)
+      postgresContainerDef = PostgreSQLContainer.Def(
+        dockerImageName = DockerImageName.parse("postgres:latest"),
+        databaseName = "testcontainer-scala",
+        username = "scala",
+        password = "password",
+      )
+      postgresContainer <- Resource.eval {
+        F.blocking(postgresContainerDef.start())
+      }
       addressState <- Resource.eval(F.ref(addresses))
       given Logger[F] = logger
       given AddressRepository[F] = new AddressRepository[F] {
@@ -48,6 +60,7 @@ object GeolocationServiceSuite extends IOSuite {
       logMessages,
       logger,
       geolocationService,
+      postgresContainer,
     )
 
   test("getCoords returns GPS coordinates for a given address") { r =>
