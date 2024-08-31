@@ -82,10 +82,8 @@ object Dependencies {
     Seq(
       catsCore,
       catsEffect,
-      catsEffectKernel
-    ) ++ Seq(
-      fs2Io
-    ) ++ Seq(
+      catsEffectKernel,
+      fs2Io,
       http4sCore,
       http4sDsl,
       http4sServer,
