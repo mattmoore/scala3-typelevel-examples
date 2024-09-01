@@ -42,13 +42,13 @@ object GeolocationServiceSuite extends SimpleIOSuite {
       logMessagesAfter  <- logMessages.get
     } yield {
       expect.all(
-        result == GpsCoords(10, 10).some,
+        result == Right(GpsCoords(10, 10)),
         logMessagesBefore.size == 0,
         logMessagesAfter.size == 1,
         logMessagesAfter == List(
           LogMessage(
             LogLevel.Info,
-            "Invoked getCoords(Address(123 Anywhere St.,Anywhere,MI,GpsCoords(10.0,10.0)))",
+            "Invoked getCoords(Address(1,123 Anywhere St.,Anywhere,MI,GpsCoords(10.0,10.0)))",
           ),
         ),
       )

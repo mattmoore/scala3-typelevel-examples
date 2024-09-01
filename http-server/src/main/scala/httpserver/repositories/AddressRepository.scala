@@ -39,7 +39,7 @@ object AddressRepository {
         }
 
     override def getByAddress(address: Address): F[Option[Address]] =
-      val sqlQuery =
+      val fragment: Query[String, Address] =
         sql"""|SELECT
               |  id,
               |  street,
@@ -48,10 +48,12 @@ object AddressRepository {
               |  ST_Y(coords) AS lat,
               |  ST_X(coords) AS lon
               |FROM addresses
-              |""".stripMargin
+              |WHERE
+              |  city LIKE $varchar
+              |""".stripMargin.query(addressDecoder)
       session.use { s =>
         for {
-          result <- s.execute(sqlQuery.query(addressDecoder))
+          result <- s.execute(fragment)(address.city)
         } yield result.headOption
       }
   }
