@@ -58,19 +58,19 @@ object GeolocationServiceSuite extends IOSuite {
           street = "20 W 34th St.",
           city = "New York",
           state = "NY",
-          coords = GpsCoords(40.748643670602384, -73.98570731665924),
+          coords = GpsCoords(40.689247, -74.044502),
         ),
       )
       logMessagesAfter <- r.logMessages.get
     } yield {
       expect.all(
-        result == Right(GpsCoords(40.748643670602384, -73.98570731665924)),
+        result == Right(GpsCoords(40.689247, -74.044502)),
         logMessagesBefore.size == 0,
         logMessagesAfter.size == 1,
         logMessagesAfter == List(
           LogMessage(
             LogLevel.Info,
-            "Invoked getCoords(Address(1,20 W 34th St.,New York,NY,GpsCoords(40.748643670602384,-73.98570731665924)))",
+            "Invoked getCoords(Address(1,20 W 34th St.,New York,NY,GpsCoords(40.689247,-74.044502)))",
           ),
         ),
       )

@@ -1,6 +1,6 @@
 package httpserver.domain
 
 case class GpsCoords(
-    lat: BigDecimal,
-    long: BigDecimal,
+    lat: Double,
+    lon: Double,
 )

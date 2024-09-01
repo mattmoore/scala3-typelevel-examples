@@ -33,15 +33,25 @@ object AddressRepository {
     )
 
     val addressDecoder: Decoder[Address] =
-      (int4 ~ varchar ~ varchar ~ varchar ~ numeric(50, 20) ~ numeric(50, 20))
+      (int4 ~ varchar ~ varchar ~ varchar ~ float8 ~ float8)
         .map { case id ~ street ~ city ~ state ~ lat ~ lon =>
           Address(id, street, city, state, GpsCoords(lat, lon))
         }
 
     override def getByAddress(address: Address): F[Option[Address]] =
+      val sqlQuery =
+        sql"""|SELECT
+              |  id,
+              |  street,
+              |  city,
+              |  state,
+              |  ST_Y(coords) AS lat,
+              |  ST_X(coords) AS lon
+              |FROM addresses
+              |""".stripMargin
       session.use { s =>
         for {
-          result <- s.execute(sql"SELECT id, street, city, state, lat, lon FROM addresses".query(addressDecoder))
+          result <- s.execute(sqlQuery.query(addressDecoder))
         } yield result.headOption
       }
   }

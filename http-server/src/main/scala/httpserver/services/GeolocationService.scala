@@ -16,10 +16,10 @@ object GeolocationService {
   ): GeolocationService[F] = new GeolocationService[F] {
     override def getCoords(address: Address): F[Either[String, GpsCoords]] =
       for {
-        _      <- Logger[F].info(s"Invoked getCoords($address)")
+        _ <- Logger[F].info(s"Invoked getCoords($address)")
         result <- repo.getByAddress(address).map {
           case Some(address) => Right(address.coords)
-          case None => Left("Unable to find address")
+          case None          => Left("Unable to find address")
         }
       } yield result
   }
