@@ -19,7 +19,7 @@ object GeolocationService {
         _ <- Logger[F].info(s"Invoked getCoords($address)")
         result <- repo.getByAddress(address).map {
           case Some(address) => Right(address.coords)
-          case None          => Left("Unable to find address")
+          case None          => Left("No address found.")
         }
       } yield result
   }

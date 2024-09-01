@@ -1,7 +1,6 @@
 package httpserver.repositories
 
-import cats.effect.kernel.Async
-import cats.effect.kernel.Resource
+import cats.effect.*
 import cats.effect.std.Console
 import cats.syntax.all.*
 import fs2.io.net.Network
@@ -32,14 +31,16 @@ object AddressRepository {
       database = database,
     )
 
-    val addressDecoder: Decoder[Address] =
-      (int4 ~ varchar ~ varchar ~ varchar ~ float8 ~ float8)
-        .map { case id ~ street ~ city ~ state ~ lat ~ lon =>
+    val codec: Codec[Address] =
+      (int4, varchar, varchar, varchar, float8, float8).tupled
+        .imap { case (id, street, city, state, lat, lon) =>
           Address(id, street, city, state, GpsCoords(lat, lon))
+        } { case Address(id, street, city, state, coords) =>
+          (id, street, city, state, coords.lat, coords.lon)
         }
 
     override def getByAddress(address: Address): F[Option[Address]] =
-      val fragment: Query[String, Address] =
+      val fragment: Query[(String, String), Address] =
         sql"""|SELECT
               |  id,
               |  street,
@@ -48,12 +49,13 @@ object AddressRepository {
               |  ST_Y(coords) AS lat,
               |  ST_X(coords) AS lon
               |FROM addresses
-              |WHERE
-              |  city LIKE $varchar
-              |""".stripMargin.query(addressDecoder)
+              |WHERE city LIKE $varchar
+              |  AND state LIKE $varchar
+              |""".stripMargin.query(codec).to[Address]
       session.use { s =>
         for {
-          result <- s.execute(fragment)(address.city)
+          statement <- s.prepare(fragment)
+          result    <- statement.stream((address.city, address.state), 16).compile.toList
         } yield result.headOption
       }
   }
