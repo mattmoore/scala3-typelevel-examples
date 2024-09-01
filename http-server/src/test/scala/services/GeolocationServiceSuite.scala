@@ -21,6 +21,7 @@ object GeolocationServiceSuite extends SimpleIOSuite {
 
       addresses = List(
         Address(
+          id = 1,
           street = "123 Anywhere St.",
           city = "Anywhere",
           state = "MI",

@@ -92,8 +92,9 @@ object Dependencies {
   )
 
   lazy val testContainers = Seq(
-    "com.dimafeng" %% "testcontainers-scala"            % Versions.testContainers,
-    "com.dimafeng" %% "testcontainers-scala-postgresql" % Versions.testContainers,
+    "com.dimafeng"  %% "testcontainers-scala"            % Versions.testContainers,
+    "com.dimafeng"  %% "testcontainers-scala-postgresql" % Versions.testContainers,
+    "org.postgresql" % "postgresql"                      % Versions.postgres,
   )
 
   lazy val twiddles = Seq(
