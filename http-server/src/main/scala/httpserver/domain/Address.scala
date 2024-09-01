@@ -1,5 +1,11 @@
 package httpserver.domain
 
+case class AddressQuery(
+    street: String,
+    city: String,
+    state: String,
+)
+
 case class Address(
     id: Int,
     street: String,

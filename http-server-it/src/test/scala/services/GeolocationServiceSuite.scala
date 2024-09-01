@@ -64,7 +64,7 @@ object GeolocationServiceSuite extends IOSuite {
       logMessagesAfter <- r.logMessages.get
     } yield {
       expect.all(
-        result == GpsCoords(40.748643670602384, -73.98570731665924).some,
+        result == Right(GpsCoords(40.748643670602384, -73.98570731665924)),
         logMessagesBefore.size == 0,
         logMessagesAfter.size == 1,
         logMessagesAfter == List(

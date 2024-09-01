@@ -1,0 +1,14 @@
+services:
+  database:
+    image: 'postgis/postgis:latest'
+
+    ports:
+      - 5432:5432
+
+    environment:
+      POSTGRES_USER: scala
+      POSTGRES_PASSWORD: scala
+      POSTGRES_DB: geolocation
+
+    volumes:
+      - ../../http-server-it/src/test/resources/database/init.sql:/docker-entrypoint-initdb.d/init.sql

@@ -21,10 +21,12 @@ object Dependencies {
         catsEffectKernel,
         fs2Io,
         http4sCore,
+        http4sCirce,
         http4sDsl,
         http4sServer,
         http4sEmberServer,
       ) ++
+        circe ++
         ip4s ++
         logging ++
         skunk ++
@@ -48,6 +50,11 @@ object Dependencies {
     catsEffectKernel,
   )
 
+  lazy val circe = Seq(
+    "io.circe" %% "circe-generic" % Versions.circe,
+    "io.circe" %% "circe-literal" % Versions.circe,
+  )
+
   lazy val fs2Core = "co.fs2" %% "fs2-core" % Versions.fs2
   lazy val fs2Io   = "co.fs2" %% "fs2-io"   % Versions.fs2
   lazy val fs2 = Seq(
@@ -60,12 +67,14 @@ object Dependencies {
   lazy val http4sEmberClient = "org.http4s" %% "http4s-ember-client" % Versions.http4s
   lazy val http4sEmberServer = "org.http4s" %% "http4s-ember-server" % Versions.http4s
   lazy val http4sDsl         = "org.http4s" %% "http4s-dsl"          % Versions.http4s
+  lazy val http4sCirce       = "org.http4s" %% "http4s-circe"        % Versions.http4s
   lazy val http4s = Seq(
     http4sCore,
     http4sServer,
     http4sEmberClient,
     http4sEmberServer,
     http4sDsl,
+    http4sCirce,
   )
 
   lazy val ip4s = Seq(
