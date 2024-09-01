@@ -22,10 +22,10 @@ object GeolocationServiceSuite extends SimpleIOSuite {
       addresses = List(
         Address(
           id = 1,
-          street = "123 Anywhere St.",
-          city = "Anywhere",
-          state = "MI",
-          coords = GpsCoords(10, 10),
+          street = "20 W 34th St.",
+          city = "New York",
+          state = "NY",
+          coords = GpsCoords(40.689247, -74.044502),
         ),
       )
       addressState <- F.ref(addresses)
@@ -42,13 +42,13 @@ object GeolocationServiceSuite extends SimpleIOSuite {
       logMessagesAfter  <- logMessages.get
     } yield {
       expect.all(
-        result == Right(GpsCoords(10, 10)),
+        result == Right(GpsCoords(40.689247, -74.044502)),
         logMessagesBefore.size == 0,
         logMessagesAfter.size == 1,
         logMessagesAfter == List(
           LogMessage(
             LogLevel.Info,
-            "Invoked getCoords(Address(1,123 Anywhere St.,Anywhere,MI,GpsCoords(10.0,10.0)))",
+            "Invoked getCoords(Address(1,20 W 34th St.,New York,NY,GpsCoords(40.689247,-74.044502)))",
           ),
         ),
       )
