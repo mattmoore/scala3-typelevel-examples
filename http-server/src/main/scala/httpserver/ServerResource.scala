@@ -21,6 +21,7 @@ import services.*
 
 object ServerResource {
   def apply[F[_]: Async: Network](using
+      config: Config,
       logger: Logger[F],
       helloService: HelloService[F],
       geolocationService: GeolocationService[F],
@@ -74,7 +75,7 @@ object ServerResource {
     EmberServerBuilder
       .default[F]
       .withHost(ipv4"0.0.0.0")
-      .withPort(port"8080")
+      .withPort(Port.fromInt(config.port).getOrElse(port"8080"))
       .withHttpApp(allRoutes)
       .withLogger(logger)
       .build

@@ -24,6 +24,7 @@ object Resources {
   def make[F[_]: Async: Console: Network]: Resource[F, Resources[F]] =
     for {
       config <- Resource.eval(Config.load[F])
+      given Config                         = config
       given LoggerFactory[F]               = Slf4jFactory.create[F]
       logger: SelfAwareStructuredLogger[F] = LoggerFactory[F].getLogger
       given SelfAwareStructuredLogger[F]   = logger
