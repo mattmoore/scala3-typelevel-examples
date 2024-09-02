@@ -1,3 +1,4 @@
+package containers
 
 import cats.syntax.all.*
 import com.dimafeng.testcontainers.JdbcDatabaseContainer
