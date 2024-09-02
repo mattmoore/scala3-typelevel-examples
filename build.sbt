@@ -2,6 +2,14 @@ import sbtwelcome.*
 
 ThisBuild / scalaVersion             := "3.4.2"
 ThisBuild / Test / parallelExecution := false
+ThisBuild / githubWorkflowJavaVersions += JavaSpec.temurin("22")
+ThisBuild / githubWorkflowPublishTargetBranches := Seq()
+ThisBuild / githubWorkflowPublish := Seq(
+  WorkflowStep.Sbt(
+    commands = List("ci-release"),
+    name = Some("Publish project"),
+  ),
+)
 
 lazy val root = (project in file("."))
   .enablePlugins(
@@ -43,7 +51,7 @@ lazy val geolocation = (project in file("geolocation"))
     fork := true,
     // Docker
     Docker / packageName := "geolocation",
-    Docker / version := "latest",
+    Docker / version     := "latest",
     dockerExposedPorts ++= Seq(8080),
     dockerBaseImage := "openjdk:22",
   )
