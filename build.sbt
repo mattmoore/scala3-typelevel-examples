@@ -1,8 +1,8 @@
 import sbtwelcome.*
 
-ThisBuild / scalaVersion               := "3.4.2"
-ThisBuild / Test / parallelExecution   := false
-ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("22"))
+ThisBuild / scalaVersion             := "3.4.2"
+ThisBuild / Test / parallelExecution := false
+//ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("22"))
 
 lazy val root = (project in file("."))
   .enablePlugins(
