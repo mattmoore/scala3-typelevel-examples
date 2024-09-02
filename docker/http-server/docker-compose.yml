@@ -1,14 +1,36 @@
 services:
-  database:
+  geolocation-postgres:
     image: 'postgis/postgis:latest'
-
     ports:
-      - 5432:5432
-
+      - '5432:5432'
     environment:
       POSTGRES_USER: scala
       POSTGRES_PASSWORD: scala
       POSTGRES_DB: geolocation
-
     volumes:
       - ../../http-server-it/src/test/resources/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - geolocation-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+
+  geolocation:
+    image: 'geolocation:0.1.0-SNAPSHOT'
+    ports:
+      - '8080:8080'
+    environment:
+      DB_HOST: geolocation-postgres
+      DB_PORT: 5432
+      DB_USERNAME: scala
+      DB_PASSWORD: scala
+      DB_DATABASE: geolocation
+    depends_on:
+      geolocation-postgres:
+        condition: service_healthy
+        restart: true
+    networks:
+      - geolocation-network
+
+networks:
+  geolocation-network:
+    driver: bridge

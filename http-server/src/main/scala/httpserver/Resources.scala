@@ -23,6 +23,12 @@ final case class Resources[F[_]](
 
 object Resources {
   def make[F[_]: Async: Console: Network]: Resource[F, Resources[F]] =
+    def serverMessage(config: Config) =
+      s"""|Starting server:
+          |
+          |$config
+          |""".stripMargin
+
     for {
       config <- Resource.eval(Config.load[F])
       given Config                         = config
@@ -30,15 +36,10 @@ object Resources {
       logger: SelfAwareStructuredLogger[F] = LoggerFactory[F].getLogger
       given SelfAwareStructuredLogger[F]   = logger
       given HelloService[F]                = HelloService()
-      given AddressRepository[F] = AddressRepository(
-        host = "localhost",
-        port = 5432,
-        username = "scala",
-        password = "scala",
-        database = "geolocation",
-      )
-      given GeolocationService[F] = GeolocationService()
+      given AddressRepository[F]           = AddressRepository()
+      given GeolocationService[F]          = GeolocationService()
       httpServer <- ServerResource[F]
+      _          <- Resource.eval(Logger[F].info(serverMessage(config)))
     } yield Resources[F](
       config,
       logger,

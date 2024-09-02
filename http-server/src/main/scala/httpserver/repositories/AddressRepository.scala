@@ -17,19 +17,15 @@ trait AddressRepository[F[_]] {
 }
 
 object AddressRepository {
-  def apply[F[_]: Async: Network: Console: Trace](
-      host: String,
-      port: Int,
-      username: String,
-      password: String,
-      database: String,
+  def apply[F[_]: Async: Network: Console: Trace]()(using
+      config: Config,
   ): AddressRepository[F] = new AddressRepository[F] {
     val session: Resource[F, Session[F]] = Session.single(
-      host = host,
-      port = port,
-      user = username,
-      password = Some(password),
-      database = database,
+      host = config.databaseConfig.host,
+      port = config.databaseConfig.port,
+      user = config.databaseConfig.username,
+      password = Some(config.databaseConfig.password),
+      database = config.databaseConfig.database,
     )
 
     val codec: Codec[Address] =

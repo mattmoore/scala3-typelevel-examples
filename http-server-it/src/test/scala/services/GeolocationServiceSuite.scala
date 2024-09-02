@@ -33,15 +33,19 @@ object GeolocationServiceSuite extends IOSuite {
       postgresContainer <- Resource.fromAutoCloseable {
         F.blocking(postgresContainerDef.start())
       }
-      given Logger[F] = logger
-      given AddressRepository[F] = AddressRepository(
-        host = postgresContainer.host,
-        port = postgresContainer.firstMappedPort,
-        username = postgresContainer.username,
-        password = postgresContainer.password,
-        database = postgresContainer.databaseName,
+      given Config = Config(
+        port = 5432,
+        databaseConfig = DatabaseConfig(
+          host = postgresContainer.host,
+          port = postgresContainer.firstMappedPort,
+          username = postgresContainer.username,
+          password = postgresContainer.password,
+          database = postgresContainer.databaseName,
+        ),
       )
-      geolocationService = GeolocationService[F]()
+      given Logger[F]            = logger
+      given AddressRepository[F] = AddressRepository()
+      geolocationService         = GeolocationService[F]()
     } yield TestResource(
       logMessages,
       logger,

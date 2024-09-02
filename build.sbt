@@ -28,11 +28,16 @@ lazy val `skunk-examples` = (project in file("skunk-examples"))
   )
 
 lazy val `http-server` = (project in file("http-server"))
+  .enablePlugins(JavaAppPackaging, DockerPlugin)
   .settings(
     name := "http-server",
     libraryDependencies ++= Dependencies.Projects.httpServer,
     testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
     fork := true,
+    // Docker
+    Docker / packageName := "geolocation",
+    dockerExposedPorts ++= Seq(8080),
+    dockerBaseImage := "openjdk:22",
   )
 
 lazy val `http-server-it` = (project in file("http-server-it"))
