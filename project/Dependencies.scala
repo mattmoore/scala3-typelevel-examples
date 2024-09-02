@@ -14,7 +14,7 @@ object Dependencies {
         sourcepos ++
         twiddles
 
-    lazy val httpServer =
+    lazy val geolocation =
       Seq(
         catsCore,
         catsEffect,
@@ -33,8 +33,8 @@ object Dependencies {
         skunk ++
         weaver
 
-    lazy val httpServerIt =
-      httpServer ++
+    lazy val geolocationIt =
+      geolocation ++
         testContainers
   }
 

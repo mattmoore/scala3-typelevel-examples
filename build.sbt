@@ -11,7 +11,7 @@ lazy val root = (project in file("."))
   .aggregate(
     `cats-examples`,
     `skunk-examples`,
-    `http-server`,
+    geolocation,
   )
 
 lazy val `cats-examples` = (project in file("cats-examples"))
@@ -27,11 +27,11 @@ lazy val `skunk-examples` = (project in file("skunk-examples"))
     fork := true,
   )
 
-lazy val `http-server` = (project in file("http-server"))
+lazy val geolocation = (project in file("geolocation"))
   .enablePlugins(JavaAppPackaging, DockerPlugin)
   .settings(
-    name := "http-server",
-    libraryDependencies ++= Dependencies.Projects.httpServer,
+    name := "geolocation",
+    libraryDependencies ++= Dependencies.Projects.geolocation,
     testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
     fork := true,
     // Docker
@@ -40,10 +40,10 @@ lazy val `http-server` = (project in file("http-server"))
     dockerBaseImage := "openjdk:22",
   )
 
-lazy val `http-server-it` = (project in file("http-server-it"))
-  .dependsOn(`http-server`)
+lazy val `geolocation-it` = (project in file("geolocation-it"))
+  .dependsOn(geolocation)
   .settings(
-    libraryDependencies ++= Dependencies.Projects.httpServerIt,
+    libraryDependencies ++= Dependencies.Projects.geolocationIt,
     fork := true,
   )
 
@@ -54,7 +54,7 @@ lazy val welcomeSettings = Seq(
   logoColor := scala.Console.RED,
   usefulTasks := Seq(
     UsefulTask("formatAll", "Format all Scala code.").alias("f"),
-    UsefulTask("http-server/run", "Run http server example.").alias("http"),
+    UsefulTask("geolocation/run", "Run geolocation example.").alias("geo"),
     UsefulTask("cats-examples/test", "Run cats standalone examples.").alias("cats"),
     UsefulTask("skunk-examples/run", "Run skunk standalone examples.").alias("skunk"),
   ),
