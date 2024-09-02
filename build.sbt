@@ -17,6 +17,7 @@ lazy val root = (project in file("."))
     `cats-examples`,
     `skunk-examples`,
     geolocation,
+    `geolocation-it`,
   )
 
 lazy val `cats-examples` = (project in file("cats-examples"))
