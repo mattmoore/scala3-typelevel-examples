@@ -1,15 +1,8 @@
 import sbtwelcome.*
 
-ThisBuild / scalaVersion             := "3.4.2"
-ThisBuild / Test / parallelExecution := false
-ThisBuild / githubWorkflowJavaVersions += JavaSpec.temurin("22")
-ThisBuild / githubWorkflowPublishTargetBranches := Seq()
-ThisBuild / githubWorkflowPublish := Seq(
-  WorkflowStep.Sbt(
-    commands = List("ci-release"),
-    name = Some("Publish project"),
-  ),
-)
+ThisBuild / scalaVersion               := "3.4.2"
+ThisBuild / Test / parallelExecution   := false
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("22"))
 
 lazy val root = (project in file("."))
   .enablePlugins(
