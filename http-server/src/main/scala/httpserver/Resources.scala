@@ -10,20 +10,24 @@ import org.http4s.server.Server
 import org.typelevel.log4cats.*
 import org.typelevel.log4cats.slf4j.*
 
+import domain.*
 import repositories.*
 import services.*
 
 final case class Resources[F[_]](
+    config: Config,
     logger: SelfAwareStructuredLogger[F],
-    httpServer: Resource[F, Server],
+    httpServer: Server,
 )
 
 object Resources {
   def make[F[_]: Async: Console: Network]: Resource[F, Resources[F]] =
-    Resource.eval {
-      given LoggerFactory[F]                     = Slf4jFactory.create[F]
-      given logger: SelfAwareStructuredLogger[F] = LoggerFactory[F].getLogger
-      given HelloService[F]                      = HelloService()
+    for {
+      config <- Resource.eval(Config.load[F])
+      given LoggerFactory[F]               = Slf4jFactory.create[F]
+      logger: SelfAwareStructuredLogger[F] = LoggerFactory[F].getLogger
+      given SelfAwareStructuredLogger[F]   = logger
+      given HelloService[F]                = HelloService()
       given AddressRepository[F] = AddressRepository(
         host = "localhost",
         port = 5432,
@@ -31,12 +35,11 @@ object Resources {
         password = "scala",
         database = "geolocation",
       )
-      given GeolocationService[F]         = GeolocationService()
-      val httpServer: Resource[F, Server] = ServerResource[F]
-
-      Resources[F](
-        logger,
-        httpServer,
-      ).pure
-    }
+      given GeolocationService[F] = GeolocationService()
+      httpServer <- ServerResource[F]
+    } yield Resources[F](
+      config,
+      logger,
+      httpServer,
+    )
 }

@@ -27,6 +27,7 @@ object Dependencies {
         http4sEmberServer,
       ) ++
         circe ++
+        ciris ++
         ip4s ++
         logging ++
         skunk ++
@@ -53,6 +54,10 @@ object Dependencies {
   lazy val circe = Seq(
     "io.circe" %% "circe-generic" % Versions.circe,
     "io.circe" %% "circe-literal" % Versions.circe,
+  )
+
+  lazy val ciris = Seq(
+    "is.cir" %% "ciris" % Versions.ciris,
   )
 
   lazy val fs2Core = "co.fs2" %% "fs2-core" % Versions.fs2

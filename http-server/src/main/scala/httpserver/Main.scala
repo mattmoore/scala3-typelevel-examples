@@ -8,7 +8,6 @@ import cats.effect.ResourceApp
 object Main extends ResourceApp.Forever {
   def run(args: List[String]): Resource[IO, Unit] =
     for {
-      resources <- Resources.make[IO]
-      _         <- resources.httpServer
+      _ <- Resources.make[IO]
     } yield ()
 }
