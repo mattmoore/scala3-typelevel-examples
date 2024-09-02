@@ -53,12 +53,10 @@ object GeolocationServiceSuite extends IOSuite {
     for {
       logMessagesBefore <- r.logMessages.get
       result <- r.geolocationService.getCoords(
-        Address(
-          id = 1,
+        AddressQuery(
           street = "20 W 34th St.",
           city = "New York",
           state = "NY",
-          coords = GpsCoords(40.689247, -74.044502),
         ),
       )
       logMessagesAfter <- r.logMessages.get
@@ -70,7 +68,7 @@ object GeolocationServiceSuite extends IOSuite {
         logMessagesAfter == List(
           LogMessage(
             LogLevel.Info,
-            "Invoked getCoords(Address(1,20 W 34th St.,New York,NY,GpsCoords(40.689247,-74.044502)))",
+            "Invoked getCoords(AddressQuery(20 W 34th St.,New York,NY))",
           ),
         ),
       )

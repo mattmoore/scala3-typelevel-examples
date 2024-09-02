@@ -43,12 +43,10 @@ object ServerResource {
       case req @ POST -> Root / "coords" =>
         for {
           request <- req.as[requests.CoordsRequest]
-          addressQuery = Address(
-            id = 1,
+          addressQuery = AddressQuery(
             street = request.street,
             city = request.city,
             state = request.state,
-            coords = GpsCoords(0, 0),
           )
           response <- geolocationService
             .getCoords(addressQuery)

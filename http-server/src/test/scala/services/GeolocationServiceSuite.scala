@@ -30,15 +30,21 @@ object GeolocationServiceSuite extends SimpleIOSuite {
       )
       addressState <- F.ref(addresses)
       given AddressRepository[F] = new AddressRepository[F] {
-        override def getByAddress(address: Address): F[Option[Address]] =
+        override def getByAddress(query: AddressQuery): F[Option[Address]] =
           addressState.get.map { addresses =>
-            addresses.find(_.street == address.street)
+            addresses.find(_.street == query.street)
           }
       }
       geolocationService = GeolocationService[F]()
 
+      addressQuery = AddressQuery(
+        street = addresses.head.street,
+        city = addresses.head.city,
+        state = addresses.head.state,
+      )
+
       logMessagesBefore <- logMessages.get
-      result            <- geolocationService.getCoords(addresses.head)
+      result            <- geolocationService.getCoords(addressQuery)
       logMessagesAfter  <- logMessages.get
     } yield {
       expect.all(
@@ -48,7 +54,7 @@ object GeolocationServiceSuite extends SimpleIOSuite {
         logMessagesAfter == List(
           LogMessage(
             LogLevel.Info,
-            "Invoked getCoords(Address(1,20 W 34th St.,New York,NY,GpsCoords(40.689247,-74.044502)))",
+            "Invoked getCoords(AddressQuery(20 W 34th St.,New York,NY))",
           ),
         ),
       )

@@ -6,13 +6,14 @@ import cats.syntax.all.*
 import fs2.io.net.Network
 import httpserver.domain.Address
 import httpserver.domain.GpsCoords
+import httpserver.domain.*
 import natchez.Trace
 import skunk.*
 import skunk.codec.all.*
 import skunk.implicits.*
 
 trait AddressRepository[F[_]] {
-  def getByAddress(address: Address): F[Option[Address]]
+  def getByAddress(addressQuery: AddressQuery): F[Option[Address]]
 }
 
 object AddressRepository {
@@ -39,7 +40,7 @@ object AddressRepository {
           (id, street, city, state, coords.lat, coords.lon)
         }
 
-    override def getByAddress(address: Address): F[Option[Address]] =
+    override def getByAddress(query: AddressQuery): F[Option[Address]] =
       val fragment: Query[(String, String), Address] =
         sql"""|SELECT
               |  id,
@@ -55,7 +56,7 @@ object AddressRepository {
       session.use { s =>
         for {
           statement <- s.prepare(fragment)
-          result    <- statement.stream((address.city, address.state), 16).compile.toList
+          result    <- statement.stream((query.city, query.state), 16).compile.toList
         } yield result.headOption
       }
   }
