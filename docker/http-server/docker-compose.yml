@@ -8,14 +8,14 @@ services:
       POSTGRES_PASSWORD: scala
       POSTGRES_DB: geolocation
     volumes:
-      - ../../http-server-it/src/test/resources/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../../geolocation-it/src/test/resources/database/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - geolocation-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
 
   geolocation:
-    image: 'geolocation:0.1.0-SNAPSHOT'
+    image: 'geolocation:latest'
     ports:
       - '8080:8080'
     environment:

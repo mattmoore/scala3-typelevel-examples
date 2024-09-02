@@ -4,6 +4,10 @@ ThisBuild / scalaVersion             := "3.4.2"
 ThisBuild / Test / parallelExecution := false
 
 lazy val root = (project in file("."))
+  .enablePlugins(
+    GitBranchPrompt,
+    GitVersioning,
+  )
   .settings(
     name := "scala3-typelevel-examples",
     welcomeSettings,
@@ -28,7 +32,10 @@ lazy val `skunk-examples` = (project in file("skunk-examples"))
   )
 
 lazy val geolocation = (project in file("geolocation"))
-  .enablePlugins(JavaAppPackaging, DockerPlugin)
+  .enablePlugins(
+    JavaAppPackaging,
+    DockerPlugin,
+  )
   .settings(
     name := "geolocation",
     libraryDependencies ++= Dependencies.Projects.geolocation,
@@ -36,6 +43,7 @@ lazy val geolocation = (project in file("geolocation"))
     fork := true,
     // Docker
     Docker / packageName := "geolocation",
+    Docker / version := "latest",
     dockerExposedPorts ++= Seq(8080),
     dockerBaseImage := "openjdk:22",
   )
