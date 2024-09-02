@@ -1,23 +1,23 @@
-package httpserver
+package httpserver.http
 
 import cats.*
 import cats.effect.*
 import cats.implicits.*
 import com.comcast.ip4s.*
 import fs2.io.net.Network
+import httpserver.domain.*
+import httpserver.services.*
 import io.circe.*
 import io.circe.generic.auto.*
 import io.circe.syntax.*
 import org.http4s.*
+import org.http4s.circe.CirceEntityDecoder.*
 import org.http4s.circe.*
 import org.http4s.dsl.*
 import org.http4s.ember.server.*
 import org.http4s.implicits.*
 import org.http4s.server.Server
 import org.typelevel.log4cats.Logger
-
-import domain.*
-import services.*
 
 object ServerResource {
   def apply[F[_]: Async: Network](using
@@ -39,18 +39,10 @@ object ServerResource {
         Ok()
     }
 
-    case class AddressRequest(
-        street: String,
-        city: String,
-        state: String,
-    )
-
-    implicit val addressRequestEntityDecoder: EntityDecoder[F, AddressRequest] = jsonOf[F, AddressRequest]
-
     val geolocationRoutes = HttpRoutes.of[F] {
       case req @ POST -> Root / "coords" =>
         for {
-          request <- req.as[AddressRequest]
+          request <- req.as[requests.CoordsRequest]
           addressQuery = Address(
             id = 1,
             street = request.street,

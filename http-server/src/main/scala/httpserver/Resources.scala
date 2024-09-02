@@ -13,6 +13,7 @@ import org.typelevel.log4cats.slf4j.*
 import domain.*
 import repositories.*
 import services.*
+import http.*
 
 final case class Resources[F[_]](
     config: Config,
