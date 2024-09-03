@@ -83,7 +83,7 @@ object GeolocationServiceSuite extends IOSuite {
       given AddressRepository[F] = AddressRepository()
       geolocationService         = GeolocationService[F]()
       newAddress = Address(
-        id = 2,
+        id = 3,
         street = "20 W 34th St.",
         city = "New York",
         state = "NY",
@@ -101,7 +101,7 @@ object GeolocationServiceSuite extends IOSuite {
         logMessagesAfter == List(
           LogMessage(
             LogLevel.Info,
-            "Invoked create(Address(2,20 W 34th St.,New York,NY,GpsCoords(40.689247,-74.044502)))",
+            "Invoked create(Address(3,20 W 34th St.,New York,NY,GpsCoords(40.689247,-74.044502)))",
           ),
         ),
       )

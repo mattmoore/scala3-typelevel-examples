@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS addresses(
-  id SERIAL,
+  id SERIAL PRIMARY KEY,
   street VARCHAR,
   city VARCHAR,
   state VARCHAR,
