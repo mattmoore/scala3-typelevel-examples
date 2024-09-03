@@ -17,13 +17,12 @@ object Main extends ResourceApp.Forever {
   def run(args: List[String]): Resource[IO, Unit] = {
     for {
       resources <- Resources.make[IO]
-      given Config                               = resources.config
-      given Logger[IO]                           = resources.logger
-      given HelloService[IO]                     = HelloService[IO]()
-      given Session[IO]                          = resources.dbSession
-      given AddressRepository[IO]                = AddressRepository[IO]()
-      geolocationService: GeolocationService[IO] = GeolocationService()
-      given GeolocationService[IO]               = geolocationService
+      given Config                 = resources.config
+      given Logger[IO]             = resources.logger
+      given HelloService[IO]       = HelloService[IO]()
+      given Session[IO]            = resources.dbSession
+      given AddressRepository[IO]  = AddressRepository[IO]()
+      given GeolocationService[IO] = GeolocationService[IO]()
       _ <- ServerResource.make[IO]
     } yield ()
   }

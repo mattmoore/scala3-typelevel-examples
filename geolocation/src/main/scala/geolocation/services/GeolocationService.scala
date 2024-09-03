@@ -1,5 +1,6 @@
 package geolocation.services
 
+import cats.*
 import cats.effect.*
 import cats.syntax.all.*
 import geolocation.domain.*
