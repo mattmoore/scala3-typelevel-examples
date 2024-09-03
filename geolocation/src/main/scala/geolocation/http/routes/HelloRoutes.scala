@@ -20,7 +20,7 @@ object HelloRoutes {
         helloService
           .hello(name)
           .flatMap(Ok(_))
-          .handleErrorWith(_ => InternalServerError())
+          .handleErrorWith(e => InternalServerError(e.getMessage))
       case GET -> Root / "healthcheck" =>
         Ok()
     }
