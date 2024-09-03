@@ -19,21 +19,15 @@ object GeolocationServiceSuite extends IOSuite {
   private val F = Async[F]
 
   final case class TestResource(
-      logMessages: Ref[F, List[LogMessage]],
-      logger: Logger[F],
-      geolocationService: GeolocationService[F],
+      config: Config,
       postgresContainer: PostgreSQLContainer,
   )
   override final type Res = TestResource
   override final val sharedResource: Resource[F, Res] =
+    val postgresContainerDef = PostgresContainer()
     for {
-      logMessages <- Resource.eval(F.ref(List.empty[LogMessage]))
-      logger               = MockLogger[F](logMessages)
-      postgresContainerDef = PostgresContainer()
-      postgresContainer <- Resource.fromAutoCloseable {
-        F.blocking(postgresContainerDef.start())
-      }
-      given Config = Config(
+      postgresContainer <- Resource.fromAutoCloseable(F.blocking(postgresContainerDef.start()))
+      config = Config(
         port = 5432,
         databaseConfig = DatabaseConfig(
           host = postgresContainer.host,
@@ -43,27 +37,28 @@ object GeolocationServiceSuite extends IOSuite {
           database = postgresContainer.databaseName,
         ),
       )
-      given Logger[F]            = logger
-      given AddressRepository[F] = AddressRepository()
-      geolocationService         = GeolocationService[F]()
     } yield TestResource(
-      logMessages,
-      logger,
-      geolocationService,
+      config,
       postgresContainer,
     )
 
   test("getCoords returns GPS coordinates for a given address") { r =>
     for {
-      logMessagesBefore <- r.logMessages.get
-      result <- r.geolocationService.getCoords(
-        AddressQuery(
-          street = "20 W 34th St.",
-          city = "New York",
-          state = "NY",
-        ),
+      logMessages <- F.ref(List.empty[LogMessage])
+      logger                     = MockLogger[F](logMessages)
+      given Config               = r.config
+      given Logger[F]            = logger
+      given AddressRepository[F] = AddressRepository()
+      geolocationService         = GeolocationService[F]()
+      query = AddressQuery(
+        street = "20 W 34th St.",
+        city = "New York",
+        state = "NY",
       )
-      logMessagesAfter <- r.logMessages.get
+
+      logMessagesBefore <- logMessages.get
+      result            <- geolocationService.getCoords(query)
+      logMessagesAfter  <- logMessages.get
     } yield {
       expect.all(
         result == Right(GpsCoords(40.689247, -74.044502)),
@@ -73,6 +68,40 @@ object GeolocationServiceSuite extends IOSuite {
           LogMessage(
             LogLevel.Info,
             "Invoked getCoords(AddressQuery(20 W 34th St.,New York,NY))",
+          ),
+        ),
+      )
+    }
+  }
+
+  test("create stores a new address") { r =>
+    for {
+      logMessages <- F.ref(List.empty[LogMessage])
+      logger                     = MockLogger[F](logMessages)
+      given Config               = r.config
+      given Logger[F]            = logger
+      given AddressRepository[F] = AddressRepository()
+      geolocationService         = GeolocationService[F]()
+      newAddress = Address(
+        id = 2,
+        street = "20 W 34th St.",
+        city = "New York",
+        state = "NY",
+        GpsCoords(40.689247, -74.044502),
+      )
+
+      logMessagesBefore <- logMessages.get
+      result            <- geolocationService.create(newAddress)
+      logMessagesAfter  <- logMessages.get
+    } yield {
+      expect.all(
+        result == Right(()),
+        logMessagesBefore.size == 0,
+        logMessagesAfter.size == 1,
+        logMessagesAfter == List(
+          LogMessage(
+            LogLevel.Info,
+            "Invoked create(Address(2,20 W 34th St.,New York,NY,GpsCoords(40.689247,-74.044502)))",
           ),
         ),
       )

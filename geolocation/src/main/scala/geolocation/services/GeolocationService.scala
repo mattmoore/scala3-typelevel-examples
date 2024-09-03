@@ -8,6 +8,7 @@ import org.typelevel.log4cats.Logger
 
 trait GeolocationService[F[_]] {
   def getCoords(query: AddressQuery): F[Either[String, GpsCoords]]
+  def create(address: Address): F[Either[String, Unit]]
 }
 
 object GeolocationService {
@@ -21,6 +22,12 @@ object GeolocationService {
           case Some(address) => Right(address.coords)
           case None          => Left("No address found.")
         }
+      } yield result
+
+    override def create(address: Address): F[Either[String, Unit]] =
+      for {
+        _      <- Logger[F].info(s"Invoked create($address)")
+        result <- repo.insert(address)
       } yield result
   }
 }

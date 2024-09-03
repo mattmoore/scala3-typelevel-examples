@@ -1,5 +1,6 @@
 package geolocation.repositories
 
+import cats.*
 import cats.effect.*
 import cats.effect.std.Console
 import cats.syntax.all.*
@@ -14,9 +15,31 @@ import skunk.implicits.*
 
 trait AddressRepository[F[_]] {
   def getByAddress(addressQuery: AddressQuery): F[Option[Address]]
+
+  def insert(address: Address): F[Either[String, Unit]]
 }
 
 object AddressRepository {
+  case class AddressRow(
+      id: Int,
+      street: String,
+      city: String,
+      state: String,
+      lat: Double,
+      lon: Double,
+  )
+
+  object AddressRow {
+    def fromDomain(address: Address): AddressRow = AddressRow(
+      id = address.id,
+      street = address.street,
+      city = address.city,
+      state = address.state,
+      lat = address.coords.lat,
+      lon = address.coords.lon,
+    )
+  }
+
   def apply[F[_]: Async: Network: Console: Trace]()(using
       config: Config,
   ): AddressRepository[F] = new AddressRepository[F] {
@@ -28,16 +51,24 @@ object AddressRepository {
       database = config.databaseConfig.database,
     )
 
-    val codec: Codec[Address] =
+    val addressCodec: Codec[Address] =
       (int4, varchar, varchar, varchar, float8, float8).tupled
         .imap { case (id, street, city, state, lat, lon) =>
           Address(id, street, city, state, GpsCoords(lat, lon))
         } { case Address(id, street, city, state, coords) =>
-          (id, street, city, state, coords.lat, coords.lon)
+          (id, street, city, state, coords.lon, coords.lat)
         }
 
-    override def getByAddress(query: AddressQuery): F[Option[Address]] =
-      val fragment: Query[(String, String), Address] =
+    val addressRowCodec: Codec[AddressRow] =
+      (int4, varchar, varchar, varchar, float8, float8).tupled
+        .imap { case (id, street, city, state, lon, lat) =>
+          AddressRow(id, street, city, state, lon, lat)
+        } { case AddressRow(id, street, city, state, lat, lon) =>
+          (id, street, city, state, lon, lat)
+        }
+
+    override def getByAddress(query: AddressQuery): F[Option[Address]] = {
+      val getByAddressQuery: Query[(String, String), Address] =
         sql"""|SELECT
               |  id,
               |  street,
@@ -48,12 +79,40 @@ object AddressRepository {
               |FROM addresses
               |WHERE city LIKE $varchar
               |  AND state LIKE $varchar
-              |""".stripMargin.query(codec).to[Address]
+              |""".stripMargin.query(addressCodec).to[Address]
       session.use { s =>
         for {
-          statement <- s.prepare(fragment)
+          statement <- s.prepare(getByAddressQuery)
           result    <- statement.stream((query.city, query.state), 16).compile.toList
         } yield result.headOption
       }
+    }
+
+    override def insert(address: Address): F[Either[String, Unit]] = {
+      val insertCommand: Command[AddressRow] =
+        sql"""|INSERT INTO addresses(
+              |  id,
+              |  street,
+              |  city,
+              |  state,
+              |  coords
+              |) VALUES (
+              |  $int4,
+              |  $varchar,
+              |  $varchar,
+              |  $varchar,
+              |  ST_SetSRID(ST_MakePoint($float8, $float8), 4326)
+              |)
+              |""".stripMargin.command.to[AddressRow]
+      session.use { s =>
+        for {
+          statement <- s.prepare(insertCommand)
+          result <- statement
+            .execute(AddressRow.fromDomain(address))
+            .flatMap(_ => Right(()).pure)
+            .handleErrorWith(_ => Left("Unable to save address").pure)
+        } yield result
+      }
+    }
   }
 }
