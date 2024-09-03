@@ -18,7 +18,7 @@ import org.http4s.server.Server
 import org.typelevel.log4cats.Logger
 
 object ServerResource {
-  def apply[F[_]: Async: Network](using
+  def make[F[_]: Async: Network](using
       config: Config,
       logger: Logger[F],
       helloService: HelloService[F],

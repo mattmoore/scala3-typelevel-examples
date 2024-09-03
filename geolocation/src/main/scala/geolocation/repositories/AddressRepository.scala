@@ -40,33 +40,26 @@ object AddressRepository {
     )
   }
 
+  val addressCodec: Codec[Address] =
+    (int4, varchar, varchar, varchar, float8, float8).tupled
+      .imap { case (id, street, city, state, lat, lon) =>
+        Address(id, street, city, state, GpsCoords(lat, lon))
+      } { case Address(id, street, city, state, coords) =>
+        (id, street, city, state, coords.lon, coords.lat)
+      }
+
+  val addressRowCodec: Codec[AddressRow] =
+    (int4, varchar, varchar, varchar, float8, float8).tupled
+      .imap { case (id, street, city, state, lon, lat) =>
+        AddressRow(id, street, city, state, lon, lat)
+      } { case AddressRow(id, street, city, state, lat, lon) =>
+        (id, street, city, state, lon, lat)
+      }
+
   def apply[F[_]: Async: Network: Console: Trace]()(using
       config: Config,
+      session: Session[F],
   ): AddressRepository[F] = new AddressRepository[F] {
-    val session: Resource[F, Session[F]] = Session.single(
-      host = config.databaseConfig.host,
-      port = config.databaseConfig.port,
-      user = config.databaseConfig.username,
-      password = Some(config.databaseConfig.password),
-      database = config.databaseConfig.database,
-    )
-
-    val addressCodec: Codec[Address] =
-      (int4, varchar, varchar, varchar, float8, float8).tupled
-        .imap { case (id, street, city, state, lat, lon) =>
-          Address(id, street, city, state, GpsCoords(lat, lon))
-        } { case Address(id, street, city, state, coords) =>
-          (id, street, city, state, coords.lon, coords.lat)
-        }
-
-    val addressRowCodec: Codec[AddressRow] =
-      (int4, varchar, varchar, varchar, float8, float8).tupled
-        .imap { case (id, street, city, state, lon, lat) =>
-          AddressRow(id, street, city, state, lon, lat)
-        } { case AddressRow(id, street, city, state, lat, lon) =>
-          (id, street, city, state, lon, lat)
-        }
-
     override def getByAddress(query: AddressQuery): F[Option[Address]] = {
       val getByAddressQuery: Query[(String, String), Address] =
         sql"""|SELECT
@@ -80,12 +73,10 @@ object AddressRepository {
               |WHERE city LIKE $varchar
               |  AND state LIKE $varchar
               |""".stripMargin.query(addressCodec).to[Address]
-      session.use { s =>
-        for {
-          statement <- s.prepare(getByAddressQuery)
-          result    <- statement.stream((query.city, query.state), 16).compile.toList
-        } yield result.headOption
-      }
+      for {
+        statement <- session.prepare(getByAddressQuery)
+        result    <- statement.stream((query.city, query.state), 16).compile.toList
+      } yield result.headOption
     }
 
     override def insert(address: Address): F[Either[String, Unit]] = {
@@ -104,15 +95,13 @@ object AddressRepository {
               |  ST_SetSRID(ST_MakePoint($float8, $float8), 4326)
               |)
               |""".stripMargin.command.to[AddressRow]
-      session.use { s =>
-        for {
-          statement <- s.prepare(insertCommand)
-          result <- statement
-            .execute(AddressRow.fromDomain(address))
-            .flatMap(_ => Right(()).pure)
-            .handleErrorWith(_ => Left("Unable to save address").pure)
-        } yield result
-      }
+      for {
+        statement <- session.prepare(insertCommand)
+        result <- statement
+          .execute(AddressRow.fromDomain(address))
+          .flatMap(_ => Right(()).pure)
+          .handleErrorWith(_ => Left("Unable to save address").pure)
+      } yield result
     }
   }
 }

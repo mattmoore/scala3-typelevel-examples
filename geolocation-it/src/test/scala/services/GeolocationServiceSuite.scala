@@ -12,6 +12,7 @@ import geolocation.services.*
 import natchez.Trace.Implicits.noop
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.extras.LogLevel
+import skunk.Session
 import weaver.*
 
 object GeolocationServiceSuite extends IOSuite {
@@ -24,9 +25,8 @@ object GeolocationServiceSuite extends IOSuite {
   )
   override final type Res = TestResource
   override final val sharedResource: Resource[F, Res] =
-    val postgresContainerDef = PostgresContainer()
     for {
-      postgresContainer <- Resource.fromAutoCloseable(F.blocking(postgresContainerDef.start()))
+      postgresContainer <- Resource.fromAutoCloseable(F.delay(PostgresContainer().start()))
       config = Config(
         port = 5432,
         databaseConfig = DatabaseConfig(
@@ -42,69 +42,85 @@ object GeolocationServiceSuite extends IOSuite {
       postgresContainer,
     )
 
-  test("getCoords returns GPS coordinates for a given address") { r =>
-    for {
-      logMessages <- F.ref(List.empty[LogMessage])
-      logger                     = MockLogger[F](logMessages)
-      given Config               = r.config
-      given Logger[F]            = logger
-      given AddressRepository[F] = AddressRepository()
-      geolocationService         = GeolocationService[F]()
-      query = AddressQuery(
-        street = "20 W 34th St.",
-        city = "New York",
-        state = "NY",
+  private def sessionFromConfig(config: Config): Resource[F, Session[F]] =
+    Session
+      .single(
+        host = config.databaseConfig.host,
+        port = config.databaseConfig.port,
+        user = config.databaseConfig.username,
+        password = Some(config.databaseConfig.password),
+        database = config.databaseConfig.database,
       )
 
-      logMessagesBefore <- logMessages.get
-      result            <- geolocationService.getCoords(query)
-      logMessagesAfter  <- logMessages.get
-    } yield {
-      expect.all(
-        result == Right(GpsCoords(40.689247, -74.044502)),
-        logMessagesBefore.size == 0,
-        logMessagesAfter.size == 1,
-        logMessagesAfter == List(
-          LogMessage(
-            LogLevel.Info,
-            "Invoked getCoords(AddressQuery(20 W 34th St.,New York,NY))",
+  test("getCoords returns GPS coordinates for a given address") { r =>
+    sessionFromConfig(r.config).use { session =>
+      for {
+        logMessages <- F.ref(List.empty[LogMessage])
+        logger                     = MockLogger[F](logMessages)
+        given Config               = r.config
+        given Logger[F]            = logger
+        given Session[F]           = session
+        given AddressRepository[F] = AddressRepository()
+        geolocationService         = GeolocationService[F]()
+        query = AddressQuery(
+          street = "20 W 34th St.",
+          city = "New York",
+          state = "NY",
+        )
+
+        logMessagesBefore <- logMessages.get
+        result            <- geolocationService.getCoords(query)
+        logMessagesAfter  <- logMessages.get
+      } yield {
+        expect.all(
+          result == Right(GpsCoords(40.689247, -74.044502)),
+          logMessagesBefore.size == 0,
+          logMessagesAfter.size == 1,
+          logMessagesAfter == List(
+            LogMessage(
+              LogLevel.Info,
+              "Invoked getCoords(AddressQuery(20 W 34th St.,New York,NY))",
+            ),
           ),
-        ),
-      )
+        )
+      }
     }
   }
 
   test("create stores a new address") { r =>
-    for {
-      logMessages <- F.ref(List.empty[LogMessage])
-      logger                     = MockLogger[F](logMessages)
-      given Config               = r.config
-      given Logger[F]            = logger
-      given AddressRepository[F] = AddressRepository()
-      geolocationService         = GeolocationService[F]()
-      newAddress = Address(
-        id = 3,
-        street = "20 W 34th St.",
-        city = "New York",
-        state = "NY",
-        GpsCoords(40.689247, -74.044502),
-      )
+    sessionFromConfig(r.config).use { session =>
+      for {
+        logMessages <- F.ref(List.empty[LogMessage])
+        logger                     = MockLogger[F](logMessages)
+        given Config               = r.config
+        given Logger[F]            = logger
+        given Session[F]           = session
+        given AddressRepository[F] = AddressRepository()
+        geolocationService         = GeolocationService[F]()
+        newAddress = Address(
+          id = 3,
+          street = "20 W 34th St.",
+          city = "New York",
+          state = "NY",
+          GpsCoords(40.689247, -74.044502),
+        )
 
-      logMessagesBefore <- logMessages.get
-      result            <- geolocationService.create(newAddress)
-      logMessagesAfter  <- logMessages.get
-    } yield {
-      expect.all(
-        result == Right(()),
-        logMessagesBefore.size == 0,
-        logMessagesAfter.size == 1,
-        logMessagesAfter == List(
-          LogMessage(
-            LogLevel.Info,
-            "Invoked create(Address(3,20 W 34th St.,New York,NY,GpsCoords(40.689247,-74.044502)))",
+        logMessagesBefore <- logMessages.get
+        result            <- geolocationService.create(newAddress)
+        logMessagesAfter  <- logMessages.get
+      } yield {
+        expect.all(
+          result == Right(()),
+          logMessagesBefore.size == 0,
+          logMessagesAfter.size == 1,
+          logMessagesAfter == List(
+            LogMessage(
+              LogLevel.Info,
+              "Invoked create(Address(3,20 W 34th St.,New York,NY,GpsCoords(40.689247,-74.044502)))",
+            ),
           ),
-        ),
-      )
+        )
+      }
     }
   }
 }

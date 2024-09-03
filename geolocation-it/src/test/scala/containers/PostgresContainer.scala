@@ -11,9 +11,9 @@ object PostgresContainer {
       dockerImageName = DockerImageName
         .parse("postgis/postgis:latest")
         .asCompatibleSubstituteFor("postgres"),
-      databaseName = "testcontainer-scala",
+      databaseName = "geolocation",
       username = "scala",
-      password = "password",
+      password = "scala",
       commonJdbcParams = JdbcDatabaseContainer.CommonParams(
         initScriptPath = "database/init.sql".some,
       ),
