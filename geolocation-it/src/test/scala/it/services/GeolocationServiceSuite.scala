@@ -1,11 +1,11 @@
-package geolocation.services
+package geolocation.it.services
 
 import cats.effect.*
 import cats.syntax.all.*
 import com.dimafeng.testcontainers.PostgreSQLContainer
-import containers.PostgresContainer
-import geolocation.MockLogger
-import geolocation.MockLogger.*
+import geolocation.it.containers.PostgresContainer
+import geolocation.it.MockLogger
+import geolocation.it.MockLogger.*
 import geolocation.domain.*
 import geolocation.repositories.AddressRepository
 import geolocation.services.*

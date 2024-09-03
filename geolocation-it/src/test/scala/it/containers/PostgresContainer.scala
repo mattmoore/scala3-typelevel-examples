@@ -1,4 +1,4 @@
-package containers
+package geolocation.it.containers
 
 import cats.syntax.all.*
 import com.dimafeng.testcontainers.JdbcDatabaseContainer
