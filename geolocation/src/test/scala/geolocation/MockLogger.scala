@@ -1,6 +1,7 @@
 package geolocation
 
 import cats.effect.*
+import cats.effect.std.AtomicCell
 import cats.syntax.all.*
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.extras.LogLevel
@@ -8,7 +9,7 @@ import org.typelevel.log4cats.extras.LogLevel
 object MockLogger {
   case class LogMessage(level: LogLevel, message: String)
 
-  def apply[F[_]](state: Ref[F, List[LogMessage]]): Logger[F] =
+  def apply[F[_]](state: AtomicCell[F, List[LogMessage]]): Logger[F] =
     new Logger[F] {
       override def error(t: Throwable)(message: => String): F[Unit] =
         state.update(messages => LogMessage(LogLevel.Error, message) +: messages)

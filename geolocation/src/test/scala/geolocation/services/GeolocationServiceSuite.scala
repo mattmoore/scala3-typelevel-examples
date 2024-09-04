@@ -1,6 +1,7 @@
 package geolocation.services
 
 import cats.effect.*
+import cats.effect.std.AtomicCell
 import cats.syntax.all.*
 import geolocation.MockLogger
 import geolocation.MockLogger.LogMessage
@@ -16,7 +17,7 @@ object GeolocationServiceSuite extends SimpleIOSuite {
 
   test("getCoords returns GPS coordinates for a given address") {
     for {
-      logMessages <- F.ref(List.empty[LogMessage])
+      logMessages <- AtomicCell[F].of(List.empty[LogMessage])
       given Logger[F] = MockLogger[F](logMessages)
 
       addresses = List(
@@ -66,7 +67,7 @@ object GeolocationServiceSuite extends SimpleIOSuite {
 
   test("create stores a new address") {
     for {
-      logMessages <- F.ref(List.empty[LogMessage])
+      logMessages <- AtomicCell[F].of(List.empty[LogMessage])
       given Logger[F] = MockLogger[F](logMessages)
 
       addressState <- F.ref(List.empty[Address])

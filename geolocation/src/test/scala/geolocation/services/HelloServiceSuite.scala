@@ -1,6 +1,7 @@
 package geolocation.services
 
 import cats.effect.*
+import cats.effect.std.AtomicCell
 import cats.syntax.all.*
 import geolocation.MockLogger
 import geolocation.MockLogger.LogMessage
@@ -13,7 +14,7 @@ object HelloServiceSuite extends SimpleIOSuite {
 
   test("hello returns a greeting with the name interpolated") {
     for {
-      logMessages <- Ref[F].of(List.empty[LogMessage])
+      logMessages <- AtomicCell[F].of(List.empty[LogMessage])
       given Logger[F] = MockLogger[F](logMessages)
       helloService    = HelloService[F]()
 
