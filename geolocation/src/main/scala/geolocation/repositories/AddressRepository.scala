@@ -58,7 +58,7 @@ object AddressRepository {
 
   def apply[F[_]: Async: Network: Console: Trace]()(using
       config: Config,
-      session: Session[F],
+      sessionR: Resource[F, Session[F]],
   ): AddressRepository[F] = new AddressRepository[F] {
     override def getByAddress(query: AddressQuery): F[Option[Address]] = {
       val getByAddressQuery: Query[(String, String), Address] =
@@ -73,10 +73,12 @@ object AddressRepository {
               |WHERE city LIKE $varchar
               |  AND state LIKE $varchar
               |""".stripMargin.query(addressCodec).to[Address]
-      for {
-        statement <- session.prepare(getByAddressQuery)
-        result    <- statement.stream((query.city, query.state), 16).compile.toList
-      } yield result.headOption
+      sessionR.use { session =>
+        for {
+          statement <- session.prepare(getByAddressQuery)
+          result    <- statement.stream((query.city, query.state), 16).compile.toList
+        } yield result.headOption
+      }
     }
 
     override def insert(address: Address): F[Either[String, Unit]] = {
@@ -95,13 +97,15 @@ object AddressRepository {
               |  ST_SetSRID(ST_MakePoint($float8, $float8), 4326)
               |)
               |""".stripMargin.command.to[AddressRow]
-      for {
-        statement <- session.prepare(insertCommand)
-        result <- statement
-          .execute(AddressRow.fromDomain(address))
-          .flatMap(_ => Right(()).pure)
-          .handleErrorWith(_ => Left("Unable to save address").pure)
-      } yield result
+      sessionR.use { session =>
+        for {
+          statement <- session.prepare(insertCommand)
+          result <- statement
+            .execute(AddressRow.fromDomain(address))
+            .flatMap(_ => Right(()).pure)
+            .handleErrorWith(_ => Left("Unable to save address").pure)
+        } yield result
+      }
     }
   }
 }

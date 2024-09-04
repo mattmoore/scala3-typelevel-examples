@@ -16,7 +16,7 @@ import repositories.*
 final case class Resources[F[_]](
     config: Config,
     logger: SelfAwareStructuredLogger[F],
-    dbSession: Session[F],
+    dbSession: Resource[F, Session[F]],
     addressRepo: AddressRepository[F],
 )
 
@@ -25,14 +25,15 @@ object Resources {
     for {
       config <- Resource.eval(Config.load[F])
       given Config = config
-      session <- Session.single(
+      session <- Session.pooled(
         host = config.databaseConfig.host,
         port = config.databaseConfig.port,
         user = config.databaseConfig.username,
         password = Some(config.databaseConfig.password),
         database = config.databaseConfig.database,
+        max = 10,
       )
-      given Session[F]                     = session
+      given Resource[F, Session[F]]        = session
       given LoggerFactory[F]               = Slf4jFactory.create[F]
       logger: SelfAwareStructuredLogger[F] = LoggerFactory[F].getLogger
       addressRepo: AddressRepository[F]    = AddressRepository[F]()

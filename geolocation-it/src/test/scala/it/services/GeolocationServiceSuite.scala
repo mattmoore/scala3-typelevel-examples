@@ -42,26 +42,27 @@ object GeolocationServiceSuite extends IOSuite {
       postgresContainer,
     )
 
-  private def sessionFromConfig(config: Config): Resource[F, Session[F]] =
+  private def pooledSessionR(config: Config): Resource[F, Resource[F, Session[F]]] =
     Session
-      .single(
+      .pooled(
         host = config.databaseConfig.host,
         port = config.databaseConfig.port,
         user = config.databaseConfig.username,
         password = Some(config.databaseConfig.password),
         database = config.databaseConfig.database,
+        max = 1,
       )
 
   test("getCoords returns GPS coordinates for a given address") { r =>
-    sessionFromConfig(r.config).use { session =>
+    pooledSessionR(r.config).use { session =>
       for {
         logMessages <- F.ref(List.empty[LogMessage])
-        logger                     = MockLogger[F](logMessages)
-        given Config               = r.config
-        given Logger[F]            = logger
-        given Session[F]           = session
-        given AddressRepository[F] = AddressRepository()
-        geolocationService         = GeolocationService[F]()
+        logger                        = MockLogger[F](logMessages)
+        given Config                  = r.config
+        given Logger[F]               = logger
+        given Resource[F, Session[F]] = session
+        given AddressRepository[F]    = AddressRepository()
+        geolocationService            = GeolocationService[F]()
         query = AddressQuery(
           street = "20 W 34th St.",
           city = "New York",
@@ -88,15 +89,15 @@ object GeolocationServiceSuite extends IOSuite {
   }
 
   test("create stores a new address") { r =>
-    sessionFromConfig(r.config).use { session =>
+    pooledSessionR(r.config).use { session =>
       for {
         logMessages <- F.ref(List.empty[LogMessage])
-        logger                     = MockLogger[F](logMessages)
-        given Config               = r.config
-        given Logger[F]            = logger
-        given Session[F]           = session
-        given AddressRepository[F] = AddressRepository()
-        geolocationService         = GeolocationService[F]()
+        logger                        = MockLogger[F](logMessages)
+        given Config                  = r.config
+        given Logger[F]               = logger
+        given Resource[F, Session[F]] = session
+        given AddressRepository[F]    = AddressRepository()
+        geolocationService            = GeolocationService[F]()
         newAddress = Address(
           id = 3,
           street = "20 W 34th St.",
