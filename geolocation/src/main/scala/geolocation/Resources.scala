@@ -5,15 +5,17 @@ import cats.effect.*
 import cats.effect.std.Console
 import cats.implicits.*
 import fs2.io.net.Network
+import geolocation.http.ServerResource
+import geolocation.services.GeolocationService
+import geolocation.services.HelloService
 import natchez.Trace.Implicits.noop
+import org.http4s.server.Server
 import org.typelevel.log4cats.*
 import org.typelevel.log4cats.slf4j.*
 import skunk.Session
 
 import domain.*
 import repositories.*
-import geolocation.services.HelloService
-import geolocation.services.GeolocationService
 
 final case class Resources[F[_]](
     config: Config,
@@ -22,6 +24,7 @@ final case class Resources[F[_]](
     addressRepo: AddressRepository[F],
     helloService: HelloService[F],
     geolocationService: GeolocationService[F],
+    httpServer: Server,
 )
 
 object Resources {
@@ -44,6 +47,12 @@ object Resources {
       addressRepo: AddressRepository[F]         = AddressRepository(config, session)
       helloService: HelloService[F]             = HelloService.apply
       geolocationService: GeolocationService[F] = GeolocationService(addressRepo)
+      httpServer: Server <- ServerResource.make[F](
+        config,
+        logger,
+        helloService,
+        geolocationService,
+      )
     } yield {
       Resources[F](
         config,
@@ -52,6 +61,7 @@ object Resources {
         addressRepo,
         helloService,
         geolocationService,
+        httpServer,
       )
     }
 }

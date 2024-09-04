@@ -9,7 +9,7 @@ import org.http4s.*
 import org.http4s.dsl.*
 
 object HelloRoutes {
-  def apply[F[_]: Async]()(using
+  def apply[F[_]: Async](
       dsl: Http4sDsl[F],
       helloService: HelloService[F],
   ): HttpRoutes[F] = {

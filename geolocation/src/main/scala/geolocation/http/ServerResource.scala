@@ -18,17 +18,17 @@ import org.http4s.server.Server
 import org.typelevel.log4cats.Logger
 
 object ServerResource {
-  def make[F[_]: Async: Network](using
+  def make[F[_]: Async: Network](
       config: Config,
       logger: Logger[F],
       helloService: HelloService[F],
       geolocationService: GeolocationService[F],
   ): Resource[F, Server] = {
-    given Http4sDsl[F] = Http4sDsl[F]
+    val dsl = Http4sDsl[F]
 
     val routes: HttpRoutes[F] = List(
-      HelloRoutes(),
-      GeolocationRoutes(),
+      HelloRoutes(dsl, helloService),
+      GeolocationRoutes(dsl, geolocationService),
     ).foldK
 
     EmberServerBuilder

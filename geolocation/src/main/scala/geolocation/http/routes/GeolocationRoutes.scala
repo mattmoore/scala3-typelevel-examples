@@ -15,7 +15,7 @@ import org.http4s.circe.*
 import org.http4s.dsl.*
 
 object GeolocationRoutes {
-  def apply[F[_]: Async]()(using
+  def apply[F[_]: Async](
       dsl: Http4sDsl[F],
       geolocationService: GeolocationService[F],
   ): HttpRoutes[F] = {
