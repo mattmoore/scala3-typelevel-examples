@@ -56,7 +56,7 @@ object AddressRepository {
         (id, street, city, state, lon, lat)
       }
 
-  def apply[F[_]: Async: Network: Console: Trace]()(using
+  def apply[F[_]: Async: Network: Console: Trace](
       config: Config,
       sessionR: Resource[F, Session[F]],
   ): AddressRepository[F] = new AddressRepository[F] {

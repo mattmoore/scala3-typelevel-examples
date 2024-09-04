@@ -15,8 +15,8 @@ object HelloServiceSuite extends SimpleIOSuite {
   test("hello returns a greeting with the name interpolated") {
     for {
       logMessages <- AtomicCell[F].of(List.empty[LogMessage])
-      given Logger[F] = MockLogger[F](logMessages)
-      helloService    = HelloService[F]()
+      given Logger[F]               = MockLogger[F](logMessages)
+      helloService: HelloService[F] = HelloService.apply
 
       logMessagesBefore <- logMessages.get
       result            <- helloService.hello("Matt")

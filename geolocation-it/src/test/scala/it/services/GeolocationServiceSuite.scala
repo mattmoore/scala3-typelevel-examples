@@ -3,10 +3,10 @@ package geolocation.it.services
 import cats.effect.*
 import cats.syntax.all.*
 import com.dimafeng.testcontainers.PostgreSQLContainer
-import geolocation.it.containers.PostgresContainer
+import geolocation.domain.*
 import geolocation.it.MockLogger
 import geolocation.it.MockLogger.*
-import geolocation.domain.*
+import geolocation.it.containers.PostgresContainer
 import geolocation.repositories.AddressRepository
 import geolocation.services.*
 import natchez.Trace.Implicits.noop
@@ -57,12 +57,11 @@ object GeolocationServiceSuite extends IOSuite {
     pooledSessionR(r.config).use { session =>
       for {
         logMessages <- F.ref(List.empty[LogMessage])
-        logger                        = MockLogger[F](logMessages)
-        given Config                  = r.config
-        given Logger[F]               = logger
-        given Resource[F, Session[F]] = session
-        given AddressRepository[F]    = AddressRepository()
-        geolocationService            = GeolocationService[F]()
+        logger                            = MockLogger[F](logMessages)
+        given Config                      = r.config
+        given Logger[F]                   = logger
+        addressRepo: AddressRepository[F] = AddressRepository(r.config, session)
+        geolocationService                = GeolocationService[F](addressRepo)
         query = AddressQuery(
           street = "20 W 34th St.",
           city = "New York",
@@ -92,12 +91,11 @@ object GeolocationServiceSuite extends IOSuite {
     pooledSessionR(r.config).use { session =>
       for {
         logMessages <- F.ref(List.empty[LogMessage])
-        logger                        = MockLogger[F](logMessages)
-        given Config                  = r.config
-        given Logger[F]               = logger
-        given Resource[F, Session[F]] = session
-        given AddressRepository[F]    = AddressRepository()
-        geolocationService            = GeolocationService[F]()
+        logger                            = MockLogger[F](logMessages)
+        given Config                      = r.config
+        given Logger[F]                   = logger
+        addressRepo: AddressRepository[F] = AddressRepository(r.config, session)
+        geolocationService                = GeolocationService[F](addressRepo)
         newAddress = Address(
           id = 3,
           street = "20 W 34th St.",

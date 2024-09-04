@@ -30,7 +30,7 @@ object GeolocationServiceSuite extends SimpleIOSuite {
         ),
       )
       addressState <- F.ref(addresses)
-      given AddressRepository[F] = new AddressRepository[F] {
+      addressRepo: AddressRepository[F] = new AddressRepository[F] {
         override def getByAddress(query: AddressQuery): F[Option[Address]] =
           addressState.get.map { addresses =>
             addresses.find(_.street == query.street)
@@ -39,7 +39,7 @@ object GeolocationServiceSuite extends SimpleIOSuite {
         override def insert(address: Address): F[Either[String, Unit]] =
           Right(()).pure
       }
-      geolocationService = GeolocationService[F]()
+      geolocationService = GeolocationService[F](addressRepo)
 
       addressQuery = AddressQuery(
         street = addresses.head.street,
@@ -71,7 +71,7 @@ object GeolocationServiceSuite extends SimpleIOSuite {
       given Logger[F] = MockLogger[F](logMessages)
 
       addressState <- F.ref(List.empty[Address])
-      given AddressRepository[F] = new AddressRepository[F] {
+      addressRepo: AddressRepository[F] = new AddressRepository[F] {
         override def getByAddress(query: AddressQuery): F[Option[Address]] =
           addressState.get.map { addresses =>
             addresses.find(_.street == query.street)
@@ -82,7 +82,7 @@ object GeolocationServiceSuite extends SimpleIOSuite {
             .update(address +: _)
             .map(Right(_))
       }
-      geolocationService = GeolocationService[F]()
+      geolocationService = GeolocationService[F](addressRepo)
 
       newAddress = Address(
         id = 1,

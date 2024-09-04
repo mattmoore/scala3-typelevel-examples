@@ -13,7 +13,7 @@ trait GeolocationService[F[_]] {
 }
 
 object GeolocationService {
-  def apply[F[_]: Async: Logger]()(using
+  def apply[F[_]: Async: Logger](
       repo: AddressRepository[F],
   ): GeolocationService[F] = new GeolocationService[F] {
     override def getCoords(query: AddressQuery): F[Either[String, GpsCoords]] =

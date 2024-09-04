@@ -9,7 +9,7 @@ trait HelloService[F[_]] {
 }
 
 object HelloService {
-  def apply[F[_]: Monad: Logger](): HelloService[F] = new HelloService[F] {
+  def apply[F[_]: Monad: Logger]: HelloService[F] = new HelloService[F] {
     def hello(name: String): F[String] =
       for {
         _      <- Logger[F].info(s"Invoked hello($name)")

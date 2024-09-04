@@ -12,12 +12,16 @@ import skunk.Session
 
 import domain.*
 import repositories.*
+import geolocation.services.HelloService
+import geolocation.services.GeolocationService
 
 final case class Resources[F[_]](
     config: Config,
     logger: SelfAwareStructuredLogger[F],
     dbSession: Resource[F, Session[F]],
     addressRepo: AddressRepository[F],
+    helloService: HelloService[F],
+    geolocationService: GeolocationService[F],
 )
 
 object Resources {
@@ -33,16 +37,21 @@ object Resources {
         database = config.databaseConfig.database,
         max = 10,
       )
-      given Resource[F, Session[F]]        = session
-      given LoggerFactory[F]               = Slf4jFactory.create[F]
-      logger: SelfAwareStructuredLogger[F] = LoggerFactory[F].getLogger
-      addressRepo: AddressRepository[F]    = AddressRepository[F]()
+      given Resource[F, Session[F]]             = session
+      given LoggerFactory[F]                    = Slf4jFactory.create[F]
+      logger: SelfAwareStructuredLogger[F]      = LoggerFactory[F].getLogger
+      given Logger[F]                           = logger
+      addressRepo: AddressRepository[F]         = AddressRepository(config, session)
+      helloService: HelloService[F]             = HelloService.apply
+      geolocationService: GeolocationService[F] = GeolocationService(addressRepo)
     } yield {
       Resources[F](
         config,
         logger,
         session,
         addressRepo,
+        helloService,
+        geolocationService,
       )
     }
 }
