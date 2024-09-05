@@ -10,6 +10,7 @@ final case class DatabaseConfig(
     username: String,
     password: String,
     database: String,
+    migrationsLocation: String = "filesystem:db",
 )
 
 final case class Config(
@@ -24,6 +25,7 @@ val databaseConfig: ConfigValue[Effect, DatabaseConfig] =
     env("DB_USERNAME").as[String].default("scala"),
     env("DB_PASSWORD").as[String].default("scala"),
     env("DB_DATABASE").as[String].default("geolocation"),
+    env("DB_MIGRATIONS_LOCATION").as[String].default("filesystem:db"),
   ).parMapN(DatabaseConfig.apply)
 
 val config: ConfigValue[Effect, Config] =

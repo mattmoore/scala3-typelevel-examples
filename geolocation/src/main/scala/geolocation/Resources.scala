@@ -30,8 +30,10 @@ final case class Resources[F[_]](
 object Resources {
   def make[F[_]: Async: Console: Network]: Resource[F, Resources[F]] =
     for {
+      // Load config
       config <- Resource.eval(Config.load[F])
       given Config = config
+      // Create skunk connection pool
       session <- Session.pooled(
         host = config.databaseConfig.host,
         port = config.databaseConfig.port,
@@ -40,13 +42,19 @@ object Resources {
         database = config.databaseConfig.database,
         max = 10,
       )
-      given Resource[F, Session[F]]             = session
+      given Resource[F, Session[F]] = session
+      // Run flyway migrations
+      _ <- Migrations.migrate(config.databaseConfig)
+      // Set up logging
       given LoggerFactory[F]                    = Slf4jFactory.create[F]
       logger: SelfAwareStructuredLogger[F]      = LoggerFactory[F].getLogger
       given Logger[F]                           = logger
+      // Initialize repos
       addressRepo: AddressRepository[F]         = AddressRepository(config, session)
+      // Initialize services
       helloService: HelloService[F]             = HelloService.apply
       geolocationService: GeolocationService[F] = GeolocationService(addressRepo)
+      // Initialize HTTP server
       httpServer: Server <- ServerResource.make[F](
         config,
         logger,

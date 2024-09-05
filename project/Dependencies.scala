@@ -28,6 +28,7 @@ object Dependencies {
       ) ++
         circe ++
         ciris ++
+        flyway ++
         ip4s ++
         logging ++
         skunk ++
@@ -58,6 +59,11 @@ object Dependencies {
 
   lazy val ciris = Seq(
     "is.cir" %% "ciris" % Versions.ciris,
+  )
+
+  lazy val flyway = Seq(
+    "org.flywaydb" % "flyway-database-postgresql" % Versions.flyway,
+    postgresql,
   )
 
   lazy val fs2Core = "co.fs2" %% "fs2-core" % Versions.fs2
@@ -97,6 +103,8 @@ object Dependencies {
     "org.tpolecat" %% "natchez-core" % Versions.natchez,
   )
 
+  lazy val postgresql = "org.postgresql" % "postgresql" % Versions.postgres
+
   lazy val skunk = Seq(
     "org.tpolecat" %% "skunk-core" % Versions.skunk,
   )
@@ -106,9 +114,9 @@ object Dependencies {
   )
 
   lazy val testContainers = Seq(
-    "com.dimafeng"  %% "testcontainers-scala"            % Versions.testContainers,
-    "com.dimafeng"  %% "testcontainers-scala-postgresql" % Versions.testContainers,
-    "org.postgresql" % "postgresql"                      % Versions.postgres,
+    "com.dimafeng" %% "testcontainers-scala"            % Versions.testContainers,
+    "com.dimafeng" %% "testcontainers-scala-postgresql" % Versions.testContainers,
+    postgresql,
   )
 
   lazy val twiddles = Seq(

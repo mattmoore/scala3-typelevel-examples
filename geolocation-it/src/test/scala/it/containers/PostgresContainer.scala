@@ -1,7 +1,5 @@
 package geolocation.it.containers
 
-import cats.syntax.all.*
-import com.dimafeng.testcontainers.JdbcDatabaseContainer
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 
@@ -14,8 +12,9 @@ object PostgresContainer {
       databaseName = "geolocation",
       username = "scala",
       password = "scala",
-      commonJdbcParams = JdbcDatabaseContainer.CommonParams(
-        initScriptPath = "database/init.sql".some,
-      ),
+      // Leaving this here as an example of how you can run postgres init SQL scripts within testcontainers
+      // commonJdbcParams = JdbcDatabaseContainer.CommonParams(
+      //   initScriptPath = "database/init.sql".some,
+      // ),
     )
 }
