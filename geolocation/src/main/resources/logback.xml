@@ -6,8 +6,11 @@
   <import class="ch.qos.logback.core.ConsoleAppender"/>
 
   <appender name="STDOUT" class="ConsoleAppender">
-    <encoder class="PatternLayoutEncoder">
+    <!--encoder class="PatternLayoutEncoder">
       <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} -%kvp- %msg%n</pattern>
+    </encoder-->
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+      <customFields>{"application":"geolocation"}</customFields>
     </encoder>
   </appender>
 

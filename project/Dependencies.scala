@@ -92,11 +92,13 @@ object Dependencies {
     "com.comcast" %% "ip4s-core" % Versions.ip4s,
   )
 
-  lazy val log4catsCore = "org.typelevel" %% "log4cats-core"   % Versions.log4cats
-  lazy val logback      = "ch.qos.logback" % "logback-classic" % Versions.logback
+  lazy val log4catsCore           = "org.typelevel"       %% "log4cats-core"            % Versions.log4cats
+  lazy val logback                = "ch.qos.logback"       % "logback-classic"          % Versions.logback
+  lazy val logstashLogbackEncoder = "net.logstash.logback" % "logstash-logback-encoder" % Versions.logstashLogbackEncoder
   lazy val logging = Seq(
     log4catsCore,
     logback,
+    logstashLogbackEncoder,
   )
 
   lazy val natchez = Seq(

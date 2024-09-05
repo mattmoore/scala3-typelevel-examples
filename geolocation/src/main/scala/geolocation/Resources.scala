@@ -30,7 +30,9 @@ object Resources {
   def make[F[_]: Async: Console: Network]: Resource[F, Resources[F]] =
     for {
       config <- Resource.eval(Config.load[F])
-      given Logger[F] = Slf4jLogger.getLogger[F]
+      given SelfAwareStructuredLogger[F] = Slf4jLogger.getLogger[F](
+        name = LoggerName("geolocation"),
+      )
       _ <- Migrations.migrate(config.databaseConfig)
       session <- Session.pooled(
         host = config.databaseConfig.host,
