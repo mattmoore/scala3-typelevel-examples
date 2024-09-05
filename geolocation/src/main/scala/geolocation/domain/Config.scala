@@ -1,6 +1,6 @@
 package geolocation.domain
 
-import cats.effect.kernel.Async
+import cats.effect.Async
 import cats.syntax.all.*
 import ciris.*
 
@@ -10,7 +10,8 @@ final case class DatabaseConfig(
     username: String,
     password: String,
     database: String,
-    migrationsLocation: String = "filesystem:db",
+    maxConnections: Int,
+    migrationsLocation: String = "db",
 )
 
 final case class Config(
@@ -25,7 +26,8 @@ val databaseConfig: ConfigValue[Effect, DatabaseConfig] =
     env("DB_USERNAME").as[String].default("scala"),
     env("DB_PASSWORD").as[String].default("scala"),
     env("DB_DATABASE").as[String].default("geolocation"),
-    env("DB_MIGRATIONS_LOCATION").as[String].default("filesystem:db"),
+    env("DB_MAX_CONNECTIONS").as[Int].default(10),
+    env("DB_MIGRATIONS_LOCATION").as[String].default("db"),
   ).parMapN(DatabaseConfig.apply)
 
 val config: ConfigValue[Effect, Config] =

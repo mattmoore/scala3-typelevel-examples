@@ -15,12 +15,10 @@ import org.http4s.dsl.*
 import org.http4s.ember.server.*
 import org.http4s.implicits.*
 import org.http4s.server.Server
-import org.typelevel.log4cats.Logger
 
 object ServerResource {
   def make[F[_]: Async: Network](
       config: Config,
-      logger: Logger[F],
       helloService: HelloService[F],
       geolocationService: GeolocationService[F],
   ): Resource[F, Server] = {
@@ -40,7 +38,6 @@ object ServerResource {
           .getOrElse(port"8080"),
       )
       .withHttpApp(routes.orNotFound)
-      .withLogger(logger)
       .build
   }
 }

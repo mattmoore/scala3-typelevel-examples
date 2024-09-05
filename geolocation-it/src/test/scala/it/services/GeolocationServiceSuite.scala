@@ -3,6 +3,7 @@ package geolocation.it.services
 import cats.effect.*
 import cats.syntax.all.*
 import com.dimafeng.testcontainers.PostgreSQLContainer
+import geolocation.Migrations
 import geolocation.domain.*
 import geolocation.it.MockLogger
 import geolocation.it.MockLogger.*
@@ -14,7 +15,6 @@ import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.extras.LogLevel
 import skunk.Session
 import weaver.*
-import geolocation.Migrations
 
 object GeolocationServiceSuite extends IOSuite {
   private type F[A] = IO[A]
@@ -36,7 +36,8 @@ object GeolocationServiceSuite extends IOSuite {
           username = postgresContainer.username,
           password = postgresContainer.password,
           database = postgresContainer.databaseName,
-          migrationsLocation = "filesystem:../geolocation/db",
+          maxConnections = 10,
+          migrationsLocation = "filesystem:../geolocation/src/main/resources/db",
         ),
       )
       _ <- Migrations.migrate(config.databaseConfig)

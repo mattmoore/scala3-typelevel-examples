@@ -7,8 +7,8 @@ services:
       POSTGRES_USER: scala
       POSTGRES_PASSWORD: scala
       POSTGRES_DB: geolocation
-    volumes:
-      - ../../geolocation-it/src/test/resources/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    #volumes:
+    #  - ../../geolocation-it/src/test/resources/database/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - geolocation-network
     healthcheck:

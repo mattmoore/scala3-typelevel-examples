@@ -11,7 +11,7 @@ import geolocation.services.HelloService
 import natchez.Trace.Implicits.noop
 import org.http4s.server.Server
 import org.typelevel.log4cats.*
-import org.typelevel.log4cats.slf4j.*
+import org.typelevel.log4cats.slf4j.Slf4jLogger
 import skunk.Session
 
 import domain.*
@@ -19,7 +19,6 @@ import repositories.*
 
 final case class Resources[F[_]](
     config: Config,
-    logger: SelfAwareStructuredLogger[F],
     dbSession: Resource[F, Session[F]],
     addressRepo: AddressRepository[F],
     helloService: HelloService[F],
@@ -30,41 +29,24 @@ final case class Resources[F[_]](
 object Resources {
   def make[F[_]: Async: Console: Network]: Resource[F, Resources[F]] =
     for {
-      // Load config
       config <- Resource.eval(Config.load[F])
-      given Config = config
-      // Create skunk connection pool
+      given Logger[F] = Slf4jLogger.getLogger[F]
+      _ <- Migrations.migrate(config.databaseConfig)
       session <- Session.pooled(
         host = config.databaseConfig.host,
         port = config.databaseConfig.port,
         user = config.databaseConfig.username,
         password = Some(config.databaseConfig.password),
         database = config.databaseConfig.database,
-        max = 10,
+        max = config.databaseConfig.maxConnections,
       )
-      given Resource[F, Session[F]] = session
-      // Run flyway migrations
-      _ <- Migrations.migrate(config.databaseConfig)
-      // Set up logging
-      given LoggerFactory[F]                    = Slf4jFactory.create[F]
-      logger: SelfAwareStructuredLogger[F]      = LoggerFactory[F].getLogger
-      given Logger[F]                           = logger
-      // Initialize repos
       addressRepo: AddressRepository[F]         = AddressRepository(config, session)
-      // Initialize services
       helloService: HelloService[F]             = HelloService.apply
       geolocationService: GeolocationService[F] = GeolocationService(addressRepo)
-      // Initialize HTTP server
-      httpServer: Server <- ServerResource.make[F](
-        config,
-        logger,
-        helloService,
-        geolocationService,
-      )
+      httpServer: Server <- ServerResource.make[F](config, helloService, geolocationService)
     } yield {
       Resources[F](
         config,
-        logger,
         session,
         addressRepo,
         helloService,
