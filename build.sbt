@@ -52,7 +52,7 @@ lazy val geolocation = (project in file("geolocation"))
   )
 
 lazy val `geolocation-it` = (project in file("geolocation-it"))
-  .dependsOn(geolocation)
+  .dependsOn(geolocation % "compile->compile;test->test")
   .settings(
     libraryDependencies ++= Dependencies.Projects.geolocationIt,
     fork := true,

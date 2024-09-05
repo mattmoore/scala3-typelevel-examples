@@ -5,7 +5,7 @@ import cats.effect.std.AtomicCell
 import cats.syntax.all.*
 import geolocation.MockLogger
 import geolocation.MockLogger.LogMessage
-import org.typelevel.log4cats.Logger
+import org.typelevel.log4cats.SelfAwareStructuredLogger
 import org.typelevel.log4cats.extras.LogLevel
 import weaver.*
 
@@ -15,8 +15,8 @@ object HelloServiceSuite extends SimpleIOSuite {
   test("hello returns a greeting with the name interpolated") {
     for {
       logMessages <- AtomicCell[F].of(List.empty[LogMessage])
-      given Logger[F]               = MockLogger[F](logMessages)
-      helloService: HelloService[F] = HelloService.apply
+      given SelfAwareStructuredLogger[F] = MockLogger[F](logMessages)
+      helloService: HelloService[F]      = HelloService.apply
 
       logMessagesBefore <- logMessages.get
       result            <- helloService.hello("Matt")
@@ -28,7 +28,7 @@ object HelloServiceSuite extends SimpleIOSuite {
         logMessagesAfter.size == 1,
         logMessagesAfter == List(LogMessage(LogLevel.Info, "Invoked hello(Matt)")),
         logMessagesAfter.head.level == LogLevel.Info,
-        logMessagesAfter.head.message == "Invoked hello(Matt)",
+        logMessagesAfter.head.msg == "Invoked hello(Matt)",
       )
     }
   }

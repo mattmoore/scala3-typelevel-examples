@@ -1,17 +1,18 @@
 package geolocation.it.services
 
 import cats.effect.*
+import cats.effect.std.AtomicCell
 import cats.syntax.all.*
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import geolocation.Migrations
+import geolocation.MockLogger
+import geolocation.MockLogger.*
 import geolocation.domain.*
-import geolocation.it.MockLogger
-import geolocation.it.MockLogger.*
 import geolocation.it.containers.PostgresContainer
 import geolocation.repositories.AddressRepository
 import geolocation.services.*
 import natchez.Trace.Implicits.noop
-import org.typelevel.log4cats.Logger
+import org.typelevel.log4cats.SelfAwareStructuredLogger
 import org.typelevel.log4cats.extras.LogLevel
 import skunk.Session
 import weaver.*
@@ -60,12 +61,11 @@ object GeolocationServiceSuite extends IOSuite {
   test("getCoords returns GPS coordinates for a given address") { r =>
     pooledSessionR(r.config).use { session =>
       for {
-        logMessages <- F.ref(List.empty[LogMessage])
-        logger                            = MockLogger[F](logMessages)
-        given Config                      = r.config
-        given Logger[F]                   = logger
-        addressRepo: AddressRepository[F] = AddressRepository(r.config, session)
-        geolocationService                = GeolocationService[F](addressRepo)
+        logMessages <- AtomicCell[F].of(List.empty[LogMessage])
+        given Config                       = r.config
+        given SelfAwareStructuredLogger[F] = MockLogger[F](logMessages)
+        addressRepo: AddressRepository[F]  = AddressRepository(r.config, session)
+        geolocationService                 = GeolocationService[F](addressRepo)
         query = AddressQuery(
           street = "20 W 34th St.",
           city = "New York",
@@ -94,12 +94,11 @@ object GeolocationServiceSuite extends IOSuite {
   test("create stores a new address") { r =>
     pooledSessionR(r.config).use { session =>
       for {
-        logMessages <- F.ref(List.empty[LogMessage])
-        logger                            = MockLogger[F](logMessages)
-        given Config                      = r.config
-        given Logger[F]                   = logger
-        addressRepo: AddressRepository[F] = AddressRepository(r.config, session)
-        geolocationService                = GeolocationService[F](addressRepo)
+        logMessages <- AtomicCell[F].of(List.empty[LogMessage])
+        given Config                       = r.config
+        given SelfAwareStructuredLogger[F] = MockLogger[F](logMessages)
+        addressRepo: AddressRepository[F]  = AddressRepository(r.config, session)
+        geolocationService                 = GeolocationService[F](addressRepo)
         newAddress = Address(
           id = 3,
           street = "20 W 34th St.",

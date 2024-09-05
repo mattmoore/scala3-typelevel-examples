@@ -3,42 +3,78 @@ package geolocation
 import cats.effect.*
 import cats.effect.std.AtomicCell
 import cats.syntax.all.*
-import org.typelevel.log4cats.Logger
+import org.typelevel.log4cats.SelfAwareStructuredLogger
 import org.typelevel.log4cats.extras.LogLevel
 
 object MockLogger {
-  case class LogMessage(level: LogLevel, message: String)
+  case class LogMessage(level: LogLevel, msg: String)
 
-  def apply[F[_]](state: AtomicCell[F, List[LogMessage]]): Logger[F] =
-    new Logger[F] {
-      override def error(t: Throwable)(message: => String): F[Unit] =
-        state.update(messages => LogMessage(LogLevel.Error, message) +: messages)
+  def apply[F[_]](state: AtomicCell[F, List[LogMessage]]): SelfAwareStructuredLogger[F] =
+    new SelfAwareStructuredLogger[F] {
+      override def isErrorEnabled: F[Boolean] = ???
+      override def isWarnEnabled: F[Boolean]  = ???
+      override def isInfoEnabled: F[Boolean]  = ???
+      override def isDebugEnabled: F[Boolean] = ???
+      override def isTraceEnabled: F[Boolean] = ???
 
-      override def warn(t: Throwable)(message: => String): F[Unit] =
-        state.update(messages => LogMessage(LogLevel.Warn, message) +: messages)
+      override def error(ctx: Map[String, String])(msg: => String): F[Unit] =
+        state.update(messages => LogMessage(LogLevel.Error, msg) +: messages)
 
-      override def info(t: Throwable)(message: => String): F[Unit] =
-        state.update(messages => LogMessage(LogLevel.Info, message) +: messages)
+      override def error(ctx: Map[String, String], t: Throwable)(msg: => String): F[Unit] =
+        state.update(messages => LogMessage(LogLevel.Error, msg) +: messages)
 
-      override def debug(t: Throwable)(message: => String): F[Unit] =
-        state.update(messages => LogMessage(LogLevel.Debug, message) +: messages)
+      override def error(t: Throwable)(msg: => String): F[Unit] =
+        state.update(messages => LogMessage(LogLevel.Error, msg) +: messages)
 
-      override def trace(t: Throwable)(message: => String): F[Unit] =
-        state.update(messages => LogMessage(LogLevel.Trace, message) +: messages)
+      override def error(msg: => String): F[Unit] =
+        error(Throwable(msg))(msg)
 
-      override def error(message: => String): F[Unit] =
-        error(Throwable(message))(message)
+      override def warn(t: Throwable)(msg: => String): F[Unit] =
+        state.update(messages => LogMessage(LogLevel.Warn, msg) +: messages)
 
-      override def warn(message: => String): F[Unit] =
-        warn(Throwable(message))(message)
+      override def warn(ctx: Map[String, String])(msg: => String): F[Unit] =
+        state.update(messages => LogMessage(LogLevel.Warn, msg) +: messages)
 
-      override def info(message: => String): F[Unit] =
-        info(Throwable(message))(message)
+      override def warn(ctx: Map[String, String], t: Throwable)(msg: => String): F[Unit] =
+        state.update(messages => LogMessage(LogLevel.Warn, msg) +: messages)
 
-      override def debug(message: => String): F[Unit] =
-        debug(Throwable(message))(message)
+      override def warn(msg: => String): F[Unit] =
+        warn(Throwable(msg))(msg)
 
-      override def trace(message: => String): F[Unit] =
-        trace(Throwable(message))(message)
+      override def info(t: Throwable)(msg: => String): F[Unit] =
+        state.update(messages => LogMessage(LogLevel.Info, msg) +: messages)
+
+      override def info(ctx: Map[String, String])(msg: => String): F[Unit] =
+        state.update(messages => LogMessage(LogLevel.Info, msg) +: messages)
+
+      override def info(ctx: Map[String, String], t: Throwable)(msg: => String): F[Unit] =
+        state.update(messages => LogMessage(LogLevel.Info, msg) +: messages)
+
+      override def info(msg: => String): F[Unit] =
+        info(Throwable(msg))(msg)
+
+      override def debug(t: Throwable)(msg: => String): F[Unit] =
+        state.update(messages => LogMessage(LogLevel.Debug, msg) +: messages)
+
+      override def debug(ctx: Map[String, String])(msg: => String): F[Unit] =
+        state.update(messages => LogMessage(LogLevel.Debug, msg) +: messages)
+
+      override def debug(ctx: Map[String, String], t: Throwable)(msg: => String): F[Unit] =
+        state.update(messages => LogMessage(LogLevel.Debug, msg) +: messages)
+
+      override def debug(msg: => String): F[Unit] =
+        debug(Throwable(msg))(msg)
+
+      override def trace(t: Throwable)(msg: => String): F[Unit] =
+        state.update(messages => LogMessage(LogLevel.Trace, msg) +: messages)
+
+      override def trace(ctx: Map[String, String])(msg: => String): F[Unit] =
+        state.update(messages => LogMessage(LogLevel.Trace, msg) +: messages)
+
+      override def trace(ctx: Map[String, String], t: Throwable)(msg: => String): F[Unit] =
+        state.update(messages => LogMessage(LogLevel.Trace, msg) +: messages)
+
+      override def trace(msg: => String): F[Unit] =
+        trace(Throwable(msg))(msg)
     }
 }

@@ -7,7 +7,7 @@ import geolocation.MockLogger
 import geolocation.MockLogger.LogMessage
 import geolocation.domain.*
 import geolocation.repositories.*
-import org.typelevel.log4cats.Logger
+import org.typelevel.log4cats.SelfAwareStructuredLogger
 import org.typelevel.log4cats.extras.LogLevel
 import weaver.*
 
@@ -18,7 +18,7 @@ object GeolocationServiceSuite extends SimpleIOSuite {
   test("getCoords returns GPS coordinates for a given address") {
     for {
       logMessages <- AtomicCell[F].of(List.empty[LogMessage])
-      given Logger[F] = MockLogger[F](logMessages)
+      given SelfAwareStructuredLogger[F] = MockLogger[F](logMessages)
 
       addresses = List(
         Address(
@@ -68,7 +68,7 @@ object GeolocationServiceSuite extends SimpleIOSuite {
   test("create stores a new address") {
     for {
       logMessages <- AtomicCell[F].of(List.empty[LogMessage])
-      given Logger[F] = MockLogger[F](logMessages)
+      given SelfAwareStructuredLogger[F] = MockLogger[F](logMessages)
 
       addressState <- F.ref(List.empty[Address])
       addressRepo: AddressRepository[F] = new AddressRepository[F] {
