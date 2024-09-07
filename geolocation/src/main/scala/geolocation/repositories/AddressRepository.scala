@@ -103,7 +103,9 @@ object AddressRepository {
           result <- statement
             .execute(AddressRow.fromDomain(address))
             .flatMap(_ => Right(()).pure)
-            .handleErrorWith(_ => Left("Unable to save address").pure)
+            .handleErrorWith { error =>
+              Left(s"Unable to save address: ${error.getMessage}").pure
+            }
         } yield result
       }
     }

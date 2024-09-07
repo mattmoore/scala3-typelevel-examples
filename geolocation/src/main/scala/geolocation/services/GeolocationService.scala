@@ -23,16 +23,37 @@ object GeolocationService {
         )(
           s"Invoked getCoords($query)",
         )
-        result <- repo.getByAddress(query).map {
-          case Some(address) => Right(address.coords)
-          case None          => Left("No address found.")
+        result <- repo.getByAddress(query).flatMap {
+          case Some(address) => address.coords.asRight.pure
+          case None =>
+            SelfAwareStructuredLogger[F].error(
+              Map("function_name" -> "getCoords", "function_args" -> s"$query"),
+            )(
+              s"Invoked getCoords($query)",
+            ) *>
+              "No address found.".asLeft.pure
         }
       } yield result
 
     override def create(address: Address): F[Either[String, Unit]] =
       for {
-        _      <- SelfAwareStructuredLogger[F].info(s"Invoked create($address)")
-        result <- repo.insert(address)
+        _ <- SelfAwareStructuredLogger[F].info(
+          Map("function_name" -> "create", "function_args" -> s"$address"),
+        )(
+          s"Invoked create($address)",
+        )
+        result <- repo
+          .insert(address)
+          .flatMap {
+            case Right(unit) => ().asRight.pure
+            case Left(error) =>
+              SelfAwareStructuredLogger[F].error(
+                Map("function_name" -> "create", "function_args" -> s"$address"),
+              )(
+                error,
+              ) *>
+                error.asLeft.pure
+          }
       } yield result
   }
 }

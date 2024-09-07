@@ -7,8 +7,6 @@ services:
       POSTGRES_USER: scala
       POSTGRES_PASSWORD: scala
       POSTGRES_DB: geolocation
-    #volumes:
-    #  - ../../geolocation-it/src/test/resources/database/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - geolocation-network
     healthcheck:
@@ -28,6 +26,10 @@ services:
       geolocation-postgres:
         condition: service_healthy
         restart: true
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
     networks:
       - geolocation-network
 
