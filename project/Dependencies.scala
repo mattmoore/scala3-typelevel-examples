@@ -31,6 +31,7 @@ object Dependencies {
         flyway ++
         ip4s ++
         logging ++
+        otel4s ++
         skunk ++
         weaver
 
@@ -103,6 +104,12 @@ object Dependencies {
 
   lazy val natchez = Seq(
     "org.tpolecat" %% "natchez-core" % Versions.natchez,
+  )
+
+  lazy val otel4s = Seq(
+    "org.typelevel"   %% "otel4s-oteljava"                           % Versions.otel4s,
+    "io.opentelemetry" % "opentelemetry-exporter-otlp"               % Versions.opentelemetry % Runtime,
+    "io.opentelemetry" % "opentelemetry-sdk-extension-autoconfigure" % Versions.opentelemetry % Runtime,
   )
 
   lazy val postgresql = "org.postgresql" % "postgresql" % Versions.postgres

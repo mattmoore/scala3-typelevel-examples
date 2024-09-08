@@ -6,6 +6,7 @@ import cats.syntax.all.*
 import geolocation.domain.*
 import geolocation.repositories.*
 import org.typelevel.log4cats.SelfAwareStructuredLogger
+import org.typelevel.otel4s.trace.Tracer
 
 trait GeolocationService[F[_]] {
   def getCoords(query: AddressQuery): F[Either[String, GpsCoords]]
@@ -13,12 +14,14 @@ trait GeolocationService[F[_]] {
 }
 
 object GeolocationService {
-  def apply[F[_]: Async: SelfAwareStructuredLogger](
+  def apply[F[_]: Async: SelfAwareStructuredLogger: Tracer](
       repo: AddressRepository[F],
   ): GeolocationService[F] = new GeolocationService[F] {
+    val logger = summon[SelfAwareStructuredLogger[F]]
+
     override def getCoords(query: AddressQuery): F[Either[String, GpsCoords]] =
       for {
-        _ <- SelfAwareStructuredLogger[F].info(
+        _ <- logger.info(
           Map("function_name" -> "getCoords", "function_args" -> s"$query"),
         )(
           s"Invoked getCoords($query)",
@@ -37,7 +40,7 @@ object GeolocationService {
 
     override def create(address: Address): F[Either[String, Unit]] =
       for {
-        _ <- SelfAwareStructuredLogger[F].info(
+        _ <- logger.info(
           Map("function_name" -> "create", "function_args" -> s"$address"),
         )(
           s"Invoked create($address)",
@@ -47,7 +50,7 @@ object GeolocationService {
           .flatMap {
             case Right(unit) => ().asRight.pure
             case Left(error) =>
-              SelfAwareStructuredLogger[F].error(
+              logger.error(
                 Map("function_name" -> "create", "function_args" -> s"$address"),
               )(
                 error,

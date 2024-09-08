@@ -42,6 +42,7 @@ lazy val geolocation = (project in file("geolocation"))
   .settings(
     name := "geolocation",
     libraryDependencies ++= Dependencies.Projects.geolocation,
+    javaOptions += "-Dotel.java.global-autoconfigure.enabled=true",
     testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
     fork := true,
     // Docker
