@@ -19,19 +19,21 @@ import skunk.Session
 
 import domain.*
 import repositories.*
+import io.opentelemetry.api.GlobalOpenTelemetry
 
 object Resources {
   def make[F[_]: Async: LiftIO: Console: Network]: Resource[F, Server] =
     for {
       config <- Resource.eval(Config.load[F])
+      serviceName = "geolocation"
+      // otel            <- OtelJava.autoConfigured[F]()
+      otel            <- Resource.eval(Async[F].delay(GlobalOpenTelemetry.get)).evalMap(OtelJava.forAsync[F])
+      given Meter[F]  <- Resource.eval(otel.meterProvider.get(serviceName))
+      given Tracer[F] <- Resource.eval(otel.tracerProvider.get(serviceName))
       given SelfAwareStructuredLogger[F] = Slf4jLogger.getLogger[F](
         name = LoggerName("geolocation"),
       )
       _ <- Migrations.migrate(config.databaseConfig)
-      serviceName = "geolocation"
-      otel            <- OtelJava.autoConfigured[F]()
-      given Meter[F]  <- Resource.eval(otel.meterProvider.get(serviceName))
-      given Tracer[F] <- Resource.eval(otel.tracerProvider.get(serviceName))
       session <- Session.pooled(
         host = config.databaseConfig.host,
         port = config.databaseConfig.port,

@@ -4,7 +4,7 @@ object Versions {
   val circe                  = "0.14.9"
   val ciris                  = "3.6.0"
   val flyway                 = "10.17.3"
-  val fs2                    = "3.10.2"
+  val fs2                    = "3.11.0"
   val http4s                 = "0.23.27"
   val ip4s                   = "3.5.0"
   val log4cats               = "2.7.0"

@@ -36,20 +36,29 @@ lazy val `skunk-examples` = (project in file("skunk-examples"))
 
 lazy val geolocation = (project in file("geolocation"))
   .enablePlugins(
+    JavaAgent,
     JavaAppPackaging,
     DockerPlugin,
   )
   .settings(
     name := "geolocation",
     libraryDependencies ++= Dependencies.Projects.geolocation,
-    javaOptions += "-Dotel.java.global-autoconfigure.enabled=true",
     testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
     fork := true,
-    // Docker
+  )
+  .settings(
     Docker / packageName := "geolocation",
     Docker / version     := "latest",
     dockerExposedPorts ++= Seq(8080),
     dockerBaseImage := "openjdk:22",
+  )
+  .settings(
+    javaOptions += "-Dotel.java.global-autoconfigure.enabled=true",
+    javaAgents += "io.opentelemetry.javaagent" % "opentelemetry-javaagent" % "1.24.0",
+    javaOptions ++= Seq(
+      "-Dotel.java.global-autoconfigure.enabled=true",
+      s"-Dotel.service.name=${name.value}",
+    ),
   )
 
 lazy val `geolocation-it` = (project in file("geolocation-it"))

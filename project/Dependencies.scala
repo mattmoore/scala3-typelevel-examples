@@ -67,11 +67,15 @@ object Dependencies {
     postgresql,
   )
 
-  lazy val fs2Core = "co.fs2" %% "fs2-core" % Versions.fs2
-  lazy val fs2Io   = "co.fs2" %% "fs2-io"   % Versions.fs2
+  lazy val fs2Core            = "co.fs2" %% "fs2-core"             % Versions.fs2
+  lazy val fs2Io              = "co.fs2" %% "fs2-io"               % Versions.fs2
+  lazy val fs2ReactiveStreams = "co.fs2" %% "fs2-reactive-streams" % Versions.fs2
+  lazy val fs2Codec           = "co.fs2" %% "fs2-scodec"           % Versions.fs2
   lazy val fs2 = Seq(
     fs2Core,
     fs2Io,
+    fs2ReactiveStreams,
+    fs2Codec,
   )
 
   lazy val http4sCore        = "org.http4s" %% "http4s-core"         % Versions.http4s
