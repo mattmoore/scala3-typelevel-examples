@@ -27,6 +27,12 @@ lazy val `cats-examples` = (project in file("cats-examples"))
     libraryDependencies ++= Dependencies.Projects.typelevelExamples,
   )
 
+lazy val `fs2-examples` = (project in file("fs2-examples"))
+  .settings(
+    name := "fs2-examples",
+    libraryDependencies ++= Dependencies.Projects.fs2Examples,
+  )
+
 lazy val `skunk-examples` = (project in file("skunk-examples"))
   .settings(
     name := "skunk-examples",
@@ -76,7 +82,8 @@ lazy val welcomeSettings = Seq(
   usefulTasks := Seq(
     UsefulTask("formatAll", "Format all Scala code.").alias("f"),
     UsefulTask("geolocation/run", "Run geolocation example.").alias("geo"),
-    UsefulTask("cats-examples/test", "Run cats standalone examples.").alias("cats"),
+    UsefulTask("cats-examples/test", "Run cats examples.").alias("cats"),
+    UsefulTask("fs2-examples/test", "Run fs2 examples.").alias("fs2"),
     UsefulTask("skunk-examples/run", "Run skunk standalone examples.").alias("skunk"),
   ),
 )

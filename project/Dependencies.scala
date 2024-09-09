@@ -6,6 +6,11 @@ object Dependencies {
       cats ++
         weaver
 
+    lazy val fs2Examples =
+      cats ++
+        fs2 ++
+        weaver
+
     lazy val skunkExamples =
       cats ++
         fs2 ++
