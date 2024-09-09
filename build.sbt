@@ -74,6 +74,7 @@ lazy val `geolocation-it` = (project in file("geolocation-it"))
     fork := true,
   )
 
+addCommandAlias("geoTest", "geolocation/test; geolocation-it/test")
 addCommandAlias("formatAll", "scalafmtAll; scalafmtSbt")
 
 lazy val welcomeSettings = Seq(
@@ -81,6 +82,7 @@ lazy val welcomeSettings = Seq(
   logoColor := scala.Console.RED,
   usefulTasks := Seq(
     UsefulTask("formatAll", "Format all Scala code.").alias("f"),
+    UsefulTask("geoTest", "Run geolocation unit and integration tests.").alias("geo-test"),
     UsefulTask("geolocation/run", "Run geolocation example.").alias("geo"),
     UsefulTask("cats-examples/test", "Run cats examples.").alias("cats"),
     UsefulTask("fs2-examples/test", "Run fs2 examples.").alias("fs2"),
