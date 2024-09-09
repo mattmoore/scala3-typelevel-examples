@@ -7,6 +7,7 @@ import geolocation.MockLogger
 import geolocation.MockLogger.LogMessage
 import org.typelevel.log4cats.SelfAwareStructuredLogger
 import org.typelevel.log4cats.extras.LogLevel
+import org.typelevel.otel4s.trace.Tracer.Implicits.noop
 import weaver.*
 
 object HelloServiceSuite extends SimpleIOSuite {
