@@ -2,7 +2,7 @@ import weaver.*
 
 // The purpose of the scenarios below is to demonstrate how we can write higher-order functions in Scala.
 // I compare different approaches below, showing a much easier approach with by-name parameters.
-object ScalaByNameParams extends SimpleIOSuite {
+object HigherOrderFunctions extends SimpleIOSuite {
   pureTest("Regular higher order function") {
     // With a regular higher-order function, we have to pass the function by name, and the parameter to call it with.
     def timer[A](f: (Double) => A, x: Double): (A, Double) = {
