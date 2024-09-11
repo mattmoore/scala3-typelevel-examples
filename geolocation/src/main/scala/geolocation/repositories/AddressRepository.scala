@@ -5,8 +5,6 @@ import cats.effect.*
 import cats.effect.std.Console
 import cats.syntax.all.*
 import fs2.io.net.Network
-import geolocation.domain.Address
-import geolocation.domain.GpsCoords
 import geolocation.domain.*
 import natchez.Trace
 import skunk.*

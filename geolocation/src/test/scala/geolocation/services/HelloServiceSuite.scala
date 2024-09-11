@@ -2,7 +2,6 @@ package geolocation.services
 
 import cats.effect.*
 import cats.effect.std.AtomicCell
-import cats.syntax.all.*
 import geolocation.MockLogger
 import geolocation.MockLogger.LogMessage
 import org.typelevel.log4cats.SelfAwareStructuredLogger

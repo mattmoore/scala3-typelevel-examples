@@ -2,7 +2,6 @@ package geolocation.it.services
 
 import cats.effect.*
 import cats.effect.std.AtomicCell
-import cats.syntax.all.*
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import geolocation.Migrations
 import geolocation.MockLogger
