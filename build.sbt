@@ -50,21 +50,23 @@ lazy val geolocation = (project in file("geolocation"))
     name := "geolocation",
     libraryDependencies ++= Dependencies.Projects.geolocation,
     testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
-    fork := true,
-  )
-  .settings(
+    fork                 := true,
     Docker / packageName := "geolocation",
     Docker / version     := "latest",
     dockerExposedPorts ++= Seq(8080),
-    dockerBaseImage := "openjdk:22",
-  )
-  .settings(
-    javaOptions += "-Dotel.java.global-autoconfigure.enabled=true",
+    dockerBaseImage                           := "openjdk:22",
     javaAgents += "io.opentelemetry.javaagent" % "opentelemetry-javaagent" % "1.24.0",
     javaOptions ++= Seq(
       "-Dotel.java.global-autoconfigure.enabled=true",
       s"-Dotel.service.name=${name.value}",
+      // "-Dotel.exporter.otlp.endpoint=http://localhost:4318",
     ),
+    // envVars := Map(
+    //   "OTEL_TRACES_EXPORTER"        -> "logging",
+    //   "OTEL_METRICS_EXPORTER"       -> "logging",
+    //   "OTEL_LOGS_EXPORTER"          -> "logging",
+    //   "OTEL_METRIC_EXPORT_INTERVAL" -> "15000",
+    // ),
   )
 
 lazy val `geolocation-it` = (project in file("geolocation-it"))

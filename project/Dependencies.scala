@@ -118,6 +118,7 @@ object Dependencies {
   lazy val otel4s = Seq(
     "org.typelevel"   %% "otel4s-oteljava"                           % Versions.otel4s,
     "io.opentelemetry" % "opentelemetry-exporter-otlp"               % Versions.opentelemetry % Runtime,
+    "io.opentelemetry" % "opentelemetry-exporter-logging"            % Versions.opentelemetry % Runtime,
     "io.opentelemetry" % "opentelemetry-sdk-extension-autoconfigure" % Versions.opentelemetry % Runtime,
   )
 

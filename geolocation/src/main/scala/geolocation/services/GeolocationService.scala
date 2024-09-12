@@ -17,9 +17,8 @@ object GeolocationService {
   def apply[F[_]: Async: SelfAwareStructuredLogger: Tracer](
       repo: AddressRepository[F],
   ): GeolocationService[F] = new GeolocationService[F] {
-    val logger              = summon[SelfAwareStructuredLogger[F]]
-    val tracer              = summon[Tracer[F]]
-    private val spanBuilder = Tracer[F].spanBuilder("geolocation").build
+    val logger = summon[SelfAwareStructuredLogger[F]]
+    val tracer = summon[Tracer[F]]
 
     override def getCoords(query: AddressQuery): F[Either[String, GpsCoords]] =
       for {
@@ -28,7 +27,7 @@ object GeolocationService {
         )(
           s"Invoked getCoords($query)",
         )
-        result <- spanBuilder.surround(repo.getByAddress(query)).flatMap {
+        result <- tracer.span("getCoords").surround(repo.getByAddress(query)).flatMap {
           case Some(address) => address.coords.asRight.pure
           case None =>
             SelfAwareStructuredLogger[F].error(
@@ -47,8 +46,12 @@ object GeolocationService {
         )(
           s"Invoked create($address)",
         )
-        result <- repo
-          .insert(address)
+        result <- tracer
+          .span("create")
+          .surround(
+            repo
+              .insert(address),
+          )
           .flatMap {
             case Right(unit) => ().asRight.pure
             case Left(error) =>

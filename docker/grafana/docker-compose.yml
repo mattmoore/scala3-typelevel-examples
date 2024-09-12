@@ -1,5 +1,3 @@
-version: "3"
-
 networks:
   loki:
 
@@ -17,6 +15,40 @@ services:
     volumes:
       - /var/log:/var/log
     command: -config.file=/etc/promtail/config.yml
+    networks:
+      - loki
+
+  tempo:
+    image: grafana/tempo:2.4.1
+    restart: on-failure
+    command:
+      - "-storage.trace.backend=local"                  # tell tempo where to permanently put traces
+      - "-storage.trace.local.path=/tmp/tempo/traces"
+      - "-storage.trace.wal.path=/tmp/tempo/wal"        # tell tempo where to store the wal
+      - "-auth.enabled=false"                           # disables the requirement for the X-Scope-OrgID header
+      - "-server.http-listen-port=3200"
+    ports:
+      - "3200:3200"
+      - "4317:4317"
+      - "4318:4318"
+
+  alloy:
+    image: grafana/alloy:v1.3.1
+    pull_policy: always
+    ports:
+      - "12345:12345"
+    environment:
+      REMOTE_WRITE_HOST: mimir:9009
+      LOKI_HOST: loki:3100
+      TEMPO_HOST: tempo:4317
+      PYROSCOPE_HOST: pyroscope:4040
+    depends_on:
+      - loki
+      - tempo
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --server.http.listen-addr=0.0.0.0:12345
     networks:
       - loki
 

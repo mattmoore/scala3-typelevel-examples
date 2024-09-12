@@ -22,6 +22,14 @@ services:
       DB_USERNAME: scala
       DB_PASSWORD: scala
       DB_DATABASE: geolocation
+      ## For logging to stdout instead of to a collector
+      #OTEL_TRACES_EXPORTER: logging
+      #OTEL_METRICS_EXPORTER: logging
+      #OTEL_LOGS_EXPORTER: logging
+      OTEL_SERVICE_NAME: geolocation
+      OTEL_METRIC_EXPORT_INTERVAL: 15000
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://192.168.1.137:4317"
     depends_on:
       geolocation-postgres:
         condition: service_healthy
