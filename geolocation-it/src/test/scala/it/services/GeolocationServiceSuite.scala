@@ -10,7 +10,6 @@ import geolocation.domain.*
 import geolocation.it.containers.PostgresContainer
 import geolocation.repositories.AddressRepository
 import geolocation.services.*
-import natchez.Trace.Implicits.noop
 import org.typelevel.log4cats.SelfAwareStructuredLogger
 import org.typelevel.log4cats.extras.LogLevel
 import org.typelevel.otel4s.trace.Tracer.Implicits.noop

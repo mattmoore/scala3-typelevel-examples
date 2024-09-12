@@ -6,10 +6,10 @@ import cats.effect.std.Console
 import cats.syntax.all.*
 import fs2.io.net.Network
 import geolocation.domain.*
-import natchez.Trace
 import skunk.*
 import skunk.codec.all.*
 import skunk.implicits.*
+import org.typelevel.otel4s.trace.Tracer
 
 trait AddressRepository[F[_]] {
   def getByAddress(addressQuery: AddressQuery): F[Option[Address]]
@@ -54,7 +54,7 @@ object AddressRepository {
         (id, street, city, state, lon, lat)
       }
 
-  def apply[F[_]: Async: Network: Console: Trace](
+  def apply[F[_]: Async: Network: Console: Tracer](
       config: Config,
       sessionR: Resource[F, Session[F]],
   ): AddressRepository[F] = new AddressRepository[F] {

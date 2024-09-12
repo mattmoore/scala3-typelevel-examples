@@ -7,7 +7,6 @@ import fs2.io.net.Network
 import geolocation.http.ServerResource
 import geolocation.services.GeolocationService
 import geolocation.services.HelloService
-import natchez.Trace.Implicits.noop
 import org.http4s.server.Server
 import org.typelevel.log4cats.*
 import org.typelevel.log4cats.slf4j.Slf4jLogger
