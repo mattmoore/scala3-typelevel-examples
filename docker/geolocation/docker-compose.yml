@@ -126,7 +126,13 @@ services:
           basicAuth: false
           isDefault: true
           version: 1
-          editable: false
+          editable: true
+        - name: Jaeger
+          type: jaeger
+          url: http://jaeger:16686
+          access: proxy
+          # UID should match the datasourceUid in derivedFields.
+          #uid: my_jaeger_uid
         EOF
         /run.sh
     networks:
