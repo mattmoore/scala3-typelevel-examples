@@ -133,6 +133,21 @@ services:
           access: proxy
           # UID should match the datasourceUid in derivedFields.
           #uid: my_jaeger_uid
+        - name: Geolocation Postgres
+          type: postgres
+          url: geolocation-postgres:5432
+          user: scala
+          secureJsonData:
+            password: 'scala'
+          jsonData:
+            database: geolocation
+            sslmode: 'disable' # disable/require/verify-ca/verify-full
+            maxOpenConns: 100 # Grafana v5.4+
+            maxIdleConns: 100 # Grafana v5.4+
+            maxIdleConnsAuto: true # Grafana v9.5.1+
+            connMaxLifetime: 14400 # Grafana v5.4+
+            postgresVersion: 903 # 903=9.3, 904=9.4, 905=9.5, 906=9.6, 1000=10
+            timescaledb: false
         EOF
         /run.sh
     networks:
