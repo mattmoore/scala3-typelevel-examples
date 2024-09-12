@@ -12,8 +12,6 @@ docker compose -f docker/loki/docker-compose.yml up -d
 
 Once the Grafana stack is fully running, you can access the web UI at http://localhost:3000. The default username/password is admin/admin.
 
-You will need to add a new connection for Loki from within the Grafana web UI. No authentication is needed for the demo. Make sure to enter the connection URL as the IP address of your localhost, so that the requests can route through the docker network layer properly, and use a port of `3100`. For example: `http://192.168.1.137:3100`.
-
 ### Start geolocation service
 
 ```shell
