@@ -15,9 +15,14 @@ import org.http4s.dsl.*
 import org.http4s.ember.server.*
 import org.http4s.implicits.*
 import org.http4s.server.Server
+import org.typelevel.ci.CIString
+import org.typelevel.otel4s.Attribute
+import org.typelevel.otel4s.trace.SpanKind
+import org.typelevel.otel4s.trace.StatusCode
+import org.typelevel.otel4s.trace.Tracer
 
 object ServerResource {
-  def make[F[_]: Async: Network](
+  def make[F[_]: Async: Network: Tracer](
       config: Config,
       helloService: HelloService[F],
       geolocationService: GeolocationService[F],
@@ -29,6 +34,8 @@ object ServerResource {
       GeolocationRoutes(dsl, geolocationService),
     ).foldK
 
+    val httpApp: HttpApp[F] = routes.orNotFound.traced
+
     EmberServerBuilder
       .default[F]
       .withHost(ipv4"0.0.0.0")
@@ -37,7 +44,31 @@ object ServerResource {
           .fromInt(config.port)
           .getOrElse(port"8080"),
       )
-      .withHttpApp(routes.orNotFound)
+      .withHttpApp(httpApp)
       .build
   }
 }
+
+extension [F[_]: Async: Tracer](service: HttpApp[F])
+  def traced: HttpApp[F] = {
+    Kleisli { (req: Request[F]) =>
+      Tracer[F]
+        .spanBuilder("handle-incoming-request")
+        .addAttribute(Attribute("http.method", req.method.name))
+        .addAttribute(Attribute("http.url", req.uri.renderString))
+        .withSpanKind(SpanKind.Server)
+        .build
+        .use { span =>
+          for {
+            response <- service(req)
+            _        <- span.addAttribute(Attribute("http.status-code", response.status.code.toLong))
+            _ <- {
+              if (response.status.isSuccess) span.setStatus(StatusCode.Ok) else span.setStatus(StatusCode.Error)
+            }
+          } yield {
+            val traceIdHeader = Header.Raw(CIString("traceId"), span.context.traceIdHex)
+            response.putHeaders(traceIdHeader)
+          }
+        }
+    }
+  }

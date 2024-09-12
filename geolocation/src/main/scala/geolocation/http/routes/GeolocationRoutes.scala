@@ -13,9 +13,10 @@ import org.http4s.*
 import org.http4s.circe.CirceEntityDecoder.*
 import org.http4s.circe.*
 import org.http4s.dsl.*
+import org.typelevel.otel4s.trace.Tracer
 
 object GeolocationRoutes {
-  def apply[F[_]: Async](
+  def apply[F[_]: Async: Tracer](
       dsl: Http4sDsl[F],
       geolocationService: GeolocationService[F],
   ): HttpRoutes[F] = {
