@@ -17,7 +17,7 @@ object Versions {
   val skunk                  = "1.0.0-M7"
   val sourcepos              = "1.1.0"
   val testContainers         = "0.41.4"
-  val twiddles               = "0.6.2"
+  val twiddles               = "0.8.0"
   val munit                  = "1.0.1"
   val munitCatsEffect        = "2.0.0"
   val postgres               = "42.7.4"

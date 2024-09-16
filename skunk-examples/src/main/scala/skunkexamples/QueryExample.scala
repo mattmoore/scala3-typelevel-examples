@@ -5,7 +5,7 @@ import skunk.*
 import skunk.implicits.*
 import skunk.codec.all.*
 import java.time.OffsetDateTime
-import natchez.Trace.Implicits.noop
+import org.typelevel.otel4s.trace.Tracer.Implicits.noop
 
 object QueryExample extends IOApp {
   // a source of sessions

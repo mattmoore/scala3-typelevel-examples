@@ -37,8 +37,8 @@ object GeolocationServiceSuite extends SimpleIOSuite {
             addresses.find(_.street == query.street)
           }
 
-        override def insert(address: Address): F[Either[String, Unit]] =
-          Right(()).pure
+        override def insert(address: Address): F[Unit] =
+          ().pure
       }
       geolocationService = GeolocationService[F](addressRepo)
 
@@ -78,10 +78,8 @@ object GeolocationServiceSuite extends SimpleIOSuite {
             addresses.find(_.street == query.street)
           }
 
-        override def insert(address: Address): F[Either[String, Unit]] =
-          addressState
-            .update(address +: _)
-            .map(Right(_))
+        override def insert(address: Address): F[Unit] =
+          addressState.update(address +: _)
       }
       geolocationService = GeolocationService[F](addressRepo)
 
@@ -98,7 +96,7 @@ object GeolocationServiceSuite extends SimpleIOSuite {
       logMessagesAfter  <- logMessages.get
     } yield {
       expect.all(
-        result == Right(()),
+        result == (),
         logMessagesBefore.size == 0,
         logMessagesAfter.size == 1,
         logMessagesAfter == List(

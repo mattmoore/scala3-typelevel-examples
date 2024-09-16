@@ -24,28 +24,25 @@ object GeolocationRoutes {
 
     HttpRoutes.of[F] {
       case req @ POST -> Root / "coords" =>
-        (for {
-          request <- req.as[requests.CoordsRequest]
-          response <- geolocationService
-            .getCoords(request.toDomain)
-            .flatMap {
-              case Right(coords) => Accepted(coords.asJson)
-              case Left(error)   => InternalServerError(error)
-            }
-        } yield response)
-          .handleErrorWith(e => InternalServerError(e.getMessage))
+        {
+          for {
+            request <- req.as[requests.CoordsRequest]
+            response <- geolocationService
+              .getCoords(request.toDomain)
+              .flatMap {
+                case Right(coords) => Accepted(coords.asJson)
+                case Left(error)   => InternalServerError(error)
+              }
+          } yield response
+        }.handleErrorWith(e => InternalServerError(e.getMessage))
 
       case req @ POST -> Root / "coords" / "new" =>
-        (for {
-          request <- req.as[requests.CreateAddressRequest]
-          response <- geolocationService
-            .create(request.toDomain)
-            .flatMap {
-              case Right(_)    => Accepted()
-              case Left(error) => InternalServerError(error)
-            }
-        } yield response)
-          .handleErrorWith(e => InternalServerError(e.getMessage))
+        {
+          for {
+            request  <- req.as[requests.CreateAddressRequest]
+            response <- geolocationService.create(request.toDomain).flatMap(Accepted(_))
+          } yield response
+        }.handleErrorWith(e => InternalServerError(e.getMessage))
 
       case GET -> Root / "healthcheck" =>
         Ok()

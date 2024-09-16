@@ -50,12 +50,20 @@ lazy val geolocation = (project in file("geolocation"))
     name := "geolocation",
     libraryDependencies ++= Dependencies.Projects.geolocation,
     testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
-    fork                 := true,
+    fork            := true,
+    // For scoverage:
+    //coverageEnabled := false, // java open telemetry is broken with this enabled
+    coverageHighlighting       := true,
+    coverageFailOnMinimum      := true,
+    coverageMinimumStmtTotal   := 10,
+    coverageMinimumBranchTotal := 10,
+    // Docker
     Docker / packageName := "geolocation",
     Docker / version     := "latest",
     dockerExposedPorts ++= Seq(8080),
-    dockerBaseImage                           := "openjdk:22",
-    javaAgents += "io.opentelemetry.javaagent" % "opentelemetry-javaagent" % "1.24.0",
+    dockerBaseImage := "openjdk:22",
+    // Java instrumentation
+    javaAgents += "io.opentelemetry.javaagent" % "opentelemetry-javaagent" % "2.8.0",
     javaOptions ++= Seq(
       "-Dotel.java.global-autoconfigure.enabled=true",
       s"-Dotel.service.name=${name.value}",
@@ -76,6 +84,7 @@ lazy val `geolocation-it` = (project in file("geolocation-it"))
     fork := true,
   )
 
+addCommandAlias("geoUnitTests", "coverageOn; geolocation/test; geolocation/coverageReport; coverageOff")
 addCommandAlias("geoTest", "geolocation/test; geolocation-it/test")
 addCommandAlias("formatAll", "scalafmtAll; scalafmtSbt")
 

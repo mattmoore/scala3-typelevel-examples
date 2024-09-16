@@ -6,10 +6,10 @@ package skunkexamples.transaction
 
 import cats.effect.*
 import cats.implicits.*
-import natchez.Trace.Implicits.noop
 import skunk.*
 import skunk.codec.all.*
 import skunk.implicits.*
+import org.typelevel.otel4s.trace.Tracer.Implicits.noop
 
 // a data type
 case class Pet(name: String, age: Short)

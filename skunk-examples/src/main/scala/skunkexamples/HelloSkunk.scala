@@ -4,7 +4,7 @@ import cats.effect.*
 import skunk.*
 import skunk.implicits.*
 import skunk.codec.all.*
-import natchez.Trace.Implicits.noop
+import org.typelevel.otel4s.trace.Tracer.Implicits.noop
 
 object HelloSkunk extends IOApp {
   val session: Resource[IO, Session[IO]] =
