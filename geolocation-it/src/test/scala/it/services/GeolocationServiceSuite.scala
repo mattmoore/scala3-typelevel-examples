@@ -111,7 +111,7 @@ object GeolocationServiceSuite extends IOSuite {
         logMessagesAfter  <- logMessages.get
       } yield {
         expect.all(
-          result == Right(()),
+          result.isRight,
           logMessagesBefore.size == 0,
           logMessagesAfter.size == 1,
           logMessagesAfter == List(

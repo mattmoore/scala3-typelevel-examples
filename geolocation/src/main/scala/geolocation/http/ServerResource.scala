@@ -33,8 +33,6 @@ object ServerResource {
       GeolocationRoutes(dsl, geolocationService),
     ).foldK
 
-    val httpApp: HttpApp[F] = routes.orNotFound.traced
-
     EmberServerBuilder
       .default[F]
       .withHost(ipv4"0.0.0.0")
@@ -43,7 +41,7 @@ object ServerResource {
           .fromInt(config.port)
           .getOrElse(port"8080"),
       )
-      .withHttpApp(httpApp)
+      .withHttpApp(routes.orNotFound.traced)
       .build
   }
 }
