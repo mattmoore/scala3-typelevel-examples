@@ -89,6 +89,7 @@ lazy val welcomeSettings = Seq(
   logoColor := scala.Console.RED,
   usefulTasks := Seq(
     UsefulTask("formatAll", "Format all Scala code.").alias("f"),
+    UsefulTask("geoUnitTests", "Run geolocation unit tests with coverage.").alias("geo-ut"),
     UsefulTask("geoTest", "Run geolocation unit and integration tests.").alias("geo-test"),
     UsefulTask("geolocation/run", "Run geolocation example.").alias("geo"),
     UsefulTask("cats-examples/test", "Run cats examples.").alias("cats"),
