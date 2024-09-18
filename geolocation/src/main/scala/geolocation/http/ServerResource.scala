@@ -17,7 +17,6 @@ import org.http4s.implicits.*
 import org.http4s.server.Server
 import org.typelevel.ci.CIString
 import org.typelevel.otel4s.Attribute
-import org.typelevel.otel4s.trace.SpanKind
 import org.typelevel.otel4s.trace.StatusCode
 import org.typelevel.otel4s.trace.Tracer
 
@@ -53,11 +52,11 @@ extension [F[_]: Async: Tracer](service: HttpApp[F])
   def traced: HttpApp[F] = {
     Kleisli { (req: Request[F]) =>
       Tracer[F]
-        .spanBuilder("handle-incoming-request")
-        .addAttribute(Attribute("http.method", req.method.name))
-        .addAttribute(Attribute("http.url", req.uri.renderString))
-        .withSpanKind(SpanKind.Server)
-        .build
+        .rootSpan(
+          "request",
+          Attribute("http.method", req.method.name),
+          Attribute("http.url", req.uri.renderString),
+        )
         .use { span =>
           for {
             response <- service(req)
