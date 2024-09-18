@@ -6,6 +6,7 @@ import cats.effect.std.Console
 import cats.syntax.all.*
 import fs2.io.net.Network
 import geolocation.domain.*
+import geolocation.repositories.codecs.*
 import skunk.*
 import skunk.codec.all.*
 import skunk.implicits.*
@@ -14,30 +15,10 @@ import org.typelevel.otel4s.trace.Tracer
 trait AddressRepository[F[_]] {
   def getByAddress(addressQuery: AddressQuery): F[Option[Address]]
 
-  def insert(address: Address): F[Either[String, Unit]]
+  def insert(address: Address): F[Unit]
 }
 
 object AddressRepository {
-  case class AddressRow(
-      id: Int,
-      street: String,
-      city: String,
-      state: String,
-      lat: Double,
-      lon: Double,
-  )
-
-  object AddressRow {
-    def fromDomain(address: Address): AddressRow = AddressRow(
-      id = address.id,
-      street = address.street,
-      city = address.city,
-      state = address.state,
-      lat = address.coords.lat,
-      lon = address.coords.lon,
-    )
-  }
-
   val addressCodec: Codec[Address] =
     (int4, varchar, varchar, varchar, float8, float8).tupled
       .imap { case (id, street, city, state, lat, lon) =>
@@ -79,7 +60,7 @@ object AddressRepository {
       }
     }
 
-    override def insert(address: Address): F[Either[String, Unit]] = {
+    override def insert(address: Address): F[Unit] = {
       val insertCommand: Command[AddressRow] =
         sql"""|INSERT INTO addresses(
               |  id,
@@ -98,13 +79,10 @@ object AddressRepository {
       sessionR.use { session =>
         for {
           statement <- session.prepare(insertCommand)
-          result <- statement
+          _ <- statement
             .execute(AddressRow.fromDomain(address))
             .flatMap(_ => Right(()).pure)
-            .handleErrorWith { error =>
-              Left(s"Unable to save address: ${error.getMessage}").pure
-            }
-        } yield result
+        } yield ()
       }
     }
   }

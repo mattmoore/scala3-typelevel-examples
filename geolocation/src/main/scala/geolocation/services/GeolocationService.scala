@@ -10,7 +10,7 @@ import org.typelevel.otel4s.trace.Tracer
 
 trait GeolocationService[F[_]] {
   def getCoords(query: AddressQuery): F[Either[String, GpsCoords]]
-  def create(address: Address): F[Either[String, Unit]]
+  def create(address: Address): F[Unit]
 }
 
 object GeolocationService {
@@ -28,7 +28,8 @@ object GeolocationService {
           s"Invoked getCoords($query)",
         )
         result <- tracer.span("getCoords").surround(repo.getByAddress(query)).flatMap {
-          case Some(address) => address.coords.asRight.pure
+          case Some(address) =>
+            address.coords.asRight.pure
           case None =>
             SelfAwareStructuredLogger[F].error(
               Map("function_name" -> "getCoords", "function_args" -> s"$query"),
@@ -39,7 +40,7 @@ object GeolocationService {
         }
       } yield result
 
-    override def create(address: Address): F[Either[String, Unit]] =
+    override def create(address: Address): F[Unit] =
       for {
         _ <- logger.info(
           Map("function_name" -> "create", "function_args" -> s"$address"),
@@ -48,19 +49,13 @@ object GeolocationService {
         )
         result <- tracer
           .span("create")
-          .surround(
-            repo
-              .insert(address),
-          )
-          .flatMap {
-            case Right(unit) => ().asRight.pure
-            case Left(error) =>
-              logger.error(
-                Map("function_name" -> "create", "function_args" -> s"$address"),
-              )(
-                error,
-              ) *>
-                error.asLeft.pure
+          .surround(repo.insert(address))
+          .handleErrorWith { error =>
+            logger.error(
+              Map("function_name" -> "create", "function_args" -> s"$address"),
+            )(
+              error.getMessage,
+            )
           }
       } yield result
   }

@@ -107,7 +107,7 @@ object GeolocationServiceSuite extends IOSuite {
         )
 
         logMessagesBefore <- logMessages.get
-        result            <- geolocationService.create(newAddress)
+        result            <- geolocationService.create(newAddress).attempt
         logMessagesAfter  <- logMessages.get
       } yield {
         expect.all(

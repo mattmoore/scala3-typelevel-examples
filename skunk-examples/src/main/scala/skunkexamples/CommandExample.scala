@@ -3,10 +3,10 @@ package skunkexamples.command
 import cats.Monad
 import cats.effect.*
 import cats.syntax.all.*
-import natchez.Trace.Implicits.noop
 import skunk.*
 import skunk.codec.all.*
 import skunk.implicits.*
+import org.typelevel.otel4s.trace.Tracer.Implicits.noop
 
 // a data type
 case class Pet(name: String, age: Short)
@@ -49,7 +49,6 @@ object PetService {
 }
 
 object CommandExample extends IOApp {
-
   // a source of sessions
   val session: Resource[IO, Session[IO]] =
     Session.single(
