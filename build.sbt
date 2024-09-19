@@ -25,6 +25,7 @@ lazy val `cats-examples` = (project in file("cats-examples"))
   .settings(
     name := "cats-examples",
     libraryDependencies ++= Dependencies.Projects.typelevelExamples,
+    fork := true,
   )
 
 lazy val `fs2-examples` = (project in file("fs2-examples"))
