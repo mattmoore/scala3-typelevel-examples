@@ -1,12 +1,10 @@
 import cats.implicits.*
-import cats.kernel.Semigroup
+import cats.Semigroup
 import weaver.*
 
 object WizardSpellSemigroupSuite extends SimpleIOSuite {
   enum Spell {
-    case Absorb
-    case Fire
-    case Water
+    case Absorb, Fire, Water
   }
 
   case class Wizard(name: String, spells: Map[Spell, Int])
@@ -31,15 +29,13 @@ object WizardSpellSemigroupSuite extends SimpleIOSuite {
 
     extension (a: Wizard) {
       def absorb(b: Wizard): Wizard = {
-        if (a.spells.contains(Spell.Absorb)) {
-          a.copy(
+        if (a.spells.contains(Spell.Absorb))
+        then a.copy(
             spells = (a.spells ++ b.spells).map { (k, _) =>
               (k, a.spells.getOrElse(k, 0) + b.spells.getOrElse(k, 0))
             },
           )
-        } else {
-          a
-        }
+        else a
       }
     }
 
