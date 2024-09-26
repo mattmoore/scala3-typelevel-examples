@@ -4,6 +4,7 @@ object Dependencies {
   object Projects {
     lazy val typelevelExamples =
       cats ++
+        ducktape ++
         weaver
 
     lazy val fs2Examples =
@@ -65,6 +66,10 @@ object Dependencies {
 
   lazy val ciris = Seq(
     "is.cir" %% "ciris" % Versions.ciris,
+  )
+
+  lazy val ducktape = Seq(
+    "io.github.arainko" %% "ducktape" % Versions.ducktape,
   )
 
   lazy val flyway = Seq(
