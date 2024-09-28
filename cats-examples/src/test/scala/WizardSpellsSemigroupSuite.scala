@@ -30,7 +30,8 @@ object WizardSpellSemigroupSuite extends SimpleIOSuite {
     extension (a: Wizard) {
       def absorb(b: Wizard): Wizard = {
         if (a.spells.contains(Spell.Absorb))
-        then a.copy(
+        then
+          a.copy(
             spells = (a.spells ++ b.spells).map { (k, _) =>
               (k, a.spells.getOrElse(k, 0) + b.spells.getOrElse(k, 0))
             },

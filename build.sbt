@@ -17,8 +17,6 @@ lazy val root = (project in file("."))
   .aggregate(
     `cats-examples`,
     `skunk-examples`,
-    geolocation,
-    `geolocation-it`,
   )
 
 lazy val `cats-examples` = (project in file("cats-examples"))
@@ -41,60 +39,19 @@ lazy val `skunk-examples` = (project in file("skunk-examples"))
     fork := true,
   )
 
-lazy val geolocation = (project in file("geolocation"))
-  .enablePlugins(
-    JavaAgent,
-    JavaAppPackaging,
-    DockerPlugin,
-  )
-  .settings(
-    name := "geolocation",
-    libraryDependencies ++= Dependencies.Projects.geolocation,
-    testFrameworks += new TestFramework("weaver.framework.CatsEffect"),
-    fork                       := true,
-    coverageHighlighting       := true,
-    coverageFailOnMinimum      := true,
-    coverageMinimumStmtTotal   := 10,
-    coverageMinimumBranchTotal := 10,
-    Docker / packageName       := "geolocation",
-    Docker / version           := "latest",
-    dockerExposedPorts ++= Seq(8080),
-    dockerBaseImage                           := "openjdk:22",
-    javaAgents += "io.opentelemetry.javaagent" % "opentelemetry-javaagent" % "1.24.0",
-    javaOptions ++= Seq(
-      "-Dotel.java.global-autoconfigure.enabled=true",
-      s"-Dotel.service.name=${name.value}",
-      // "-Dotel.exporter.otlp.endpoint=http://localhost:4318",
-    ),
-    // envVars := Map(
-    //   "OTEL_TRACES_EXPORTER"        -> "logging",
-    //   "OTEL_METRICS_EXPORTER"       -> "logging",
-    //   "OTEL_LOGS_EXPORTER"          -> "logging",
-    //   "OTEL_METRIC_EXPORT_INTERVAL" -> "15000",
-    // ),
-  )
-
-lazy val `geolocation-it` = (project in file("geolocation-it"))
-  .dependsOn(geolocation % "compile->compile;test->test")
-  .settings(
-    libraryDependencies ++= Dependencies.Projects.geolocationIt,
-    fork := true,
-  )
-
-addCommandAlias("geoUnitTests", "coverageOn; geolocation/test; geolocation/coverageReport; coverageOff")
-addCommandAlias("geoTest", "geolocation/test; geolocation-it/test")
+addCommandAlias("unitTests", "coverageOn; cats-examples/test; cats-examples/coverageReport; coverageOff")
 addCommandAlias("formatAll", "scalafmtAll; scalafmtSbt")
 
 lazy val welcomeSettings = Seq(
   logo      := Embroidery.projectLogo,
   logoColor := scala.Console.RED,
   usefulTasks := Seq(
+    UsefulTask("welcome", "Show this welcome screen.").alias("w"),
+    UsefulTask("reload", "Reload sbt.").alias("r"),
     UsefulTask("formatAll", "Format all Scala code.").alias("f"),
-    UsefulTask("geoUnitTests", "Run geolocation unit tests with coverage.").alias("geo-ut"),
-    UsefulTask("geoTest", "Run geolocation unit and integration tests.").alias("geo-test"),
-    UsefulTask("geolocation/run", "Run geolocation example.").alias("geo"),
     UsefulTask("cats-examples/test", "Run cats examples.").alias("cats"),
     UsefulTask("fs2-examples/test", "Run fs2 examples.").alias("fs2"),
     UsefulTask("skunk-examples/run", "Run skunk standalone examples.").alias("skunk"),
+    UsefulTask("test", "Run all unit tests.").alias("t"),
   ),
 )

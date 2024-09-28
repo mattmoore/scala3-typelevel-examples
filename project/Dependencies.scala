@@ -19,31 +19,6 @@ object Dependencies {
         skunk ++
         sourcepos ++
         twiddles
-
-    lazy val geolocation =
-      Seq(
-        catsCore,
-        catsEffect,
-        catsEffectKernel,
-        fs2Io,
-        http4sCore,
-        http4sCirce,
-        http4sDsl,
-        http4sServer,
-        http4sEmberServer,
-      ) ++
-        circe ++
-        ciris ++
-        flyway ++
-        ip4s ++
-        logging ++
-        otel4s ++
-        skunk ++
-        weaver
-
-    lazy val geolocationIt =
-      geolocation ++
-        testContainers
   }
 
   lazy val catsCore         = "org.typelevel" %% "cats-core"          % Versions.catsCore
