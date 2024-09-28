@@ -19,6 +19,11 @@ object Dependencies {
         skunk ++
         sourcepos ++
         twiddles
+
+    lazy val parserCombinators =
+      cats ++
+        Seq(scalaParserCombinators) ++
+        weaver
   }
 
   lazy val catsCore         = "org.typelevel" %% "cats-core"          % Versions.catsCore
@@ -101,6 +106,8 @@ object Dependencies {
     "io.opentelemetry" % "opentelemetry-exporter-logging"            % Versions.opentelemetry % Runtime,
     "io.opentelemetry" % "opentelemetry-sdk-extension-autoconfigure" % Versions.opentelemetry % Runtime,
   )
+
+  lazy val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % Versions.scalaParserCombinators
 
   lazy val postgresql = "org.postgresql" % "postgresql" % Versions.postgres
 

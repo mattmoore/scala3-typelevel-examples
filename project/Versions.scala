@@ -21,6 +21,7 @@ object Versions {
   val twiddles               = "0.8.0"
   val munit                  = "1.0.1"
   val munitCatsEffect        = "2.0.0"
+  val scalaParserCombinators = "2.4.0"
   val postgres               = "42.7.4"
   val weaver                 = "0.8.3"
 }

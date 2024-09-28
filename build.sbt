@@ -39,6 +39,12 @@ lazy val `skunk-examples` = (project in file("skunk-examples"))
     fork := true,
   )
 
+lazy val `parser-combinators` = (project in file("parser-combinators"))
+  .settings(
+    name := "parser-combinators",
+    libraryDependencies ++= Dependencies.Projects.parserCombinators,
+  )
+
 addCommandAlias("unitTests", "coverageOn; cats-examples/test; cats-examples/coverageReport; coverageOff")
 addCommandAlias("formatAll", "scalafmtAll; scalafmtSbt")
 
