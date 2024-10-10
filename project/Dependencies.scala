@@ -4,6 +4,7 @@ object Dependencies {
   object Projects {
     lazy val typelevelExamples =
       cats ++
+        droste ++
         ducktape ++
         weaver
 
@@ -46,6 +47,10 @@ object Dependencies {
 
   lazy val ciris = Seq(
     "is.cir" %% "ciris" % Versions.ciris,
+  )
+
+  lazy val droste = Seq(
+    "io.higherkindness" %% "droste-core" % "0.9.0",
   )
 
   lazy val ducktape = Seq(
