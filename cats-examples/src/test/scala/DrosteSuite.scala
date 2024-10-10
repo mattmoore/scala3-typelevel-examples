@@ -1,3 +1,4 @@
+import cats.Functor
 import higherkindness.droste.*
 import higherkindness.droste.data.*
 import weaver.*
@@ -71,6 +72,51 @@ object DrosteSuite extends SimpleIOSuite {
       fused(2) == (1, 5),
       fused(10) == (55, 385),
       fused(100) == (BigDecimal("354224848179261915075"), 338350),
+    )
+  }
+
+  pureTest("Do many things at once") {
+    sealed trait ListIntF[+T]
+    final case class ::[+T](head: Int, tail: T) extends ListIntF[T]
+    case object Nil                             extends ListIntF[Nothing]
+    implicit class ConsInt[T](t: T) {
+      def ::(newHead: Int): ::[T] = new ::(newHead, t)
+    }
+
+    val sumAlgebra: Algebra[ListIntF, Int] = Algebra {
+      case head :: tailResult => head + tailResult
+      case Nil                => 0
+    }
+
+    val sizeAlgebra: Algebra[ListIntF, Int] = Algebra {
+      case _ :: tailResult => 1 + tailResult
+      case Nil             => 0
+    }
+
+    val mkStringAlgebra: Algebra[ListIntF, String] = Algebra {
+      case value :: other => value.toString + " :: " + other
+      case Nil            => "Nil"
+    }
+
+    val nListCoalgebra: Coalgebra[ListIntF, Int] = Coalgebra {
+      case n if n > 0 => n :: (n - 1)
+      case _          => Nil
+    }
+
+    implicit val listIntFunctor: Functor[ListIntF] = new Functor[ListIntF] {
+      override def map[A, B](fa: ListIntF[A])(f: A => B): ListIntF[B] = fa match {
+        case head :: tail => head :: f(tail)
+        case Nil          => Nil
+      }
+    }
+
+    val doManyThings = scheme.ghylo(
+      (sumAlgebra `zip` sizeAlgebra `zip` mkStringAlgebra).gather(Gather.cata),
+      nListCoalgebra.scatter(Scatter.ana),
+    )
+
+    expect.all(
+      doManyThings(4) == ((10, 4), "4 :: 3 :: 2 :: 1 :: Nil"),
     )
   }
 }
