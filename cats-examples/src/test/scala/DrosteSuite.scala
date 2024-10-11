@@ -193,7 +193,194 @@ object DrosteSuite extends SimpleIOSuite {
 
     expect.all(
       fold("Nil", stepString)(ints) == "3 :: 2 :: 1 :: Nil",
+      fold(1, stepInt)(ints) == 6,
       mkString(ints) == "3 :: 2 :: 1 :: Nil",
+      product(ints) == 6,
+    )
+  }
+
+  pureTest("Abstract the structure") {
+    sealed trait List
+
+    case class Cons(
+        head: Int,
+        tail: List,
+    ) extends List
+
+    case object Nil extends List
+
+    val project: List => Option[(Int, List)] = {
+      case Cons(head, tail) => Some((head, tail))
+      case Nil              => None
+    }
+
+    val opString: Option[(Int, String)] => String = {
+      case Some((head, tailResult)) => s"$head :: $tailResult"
+      case None                     => "nil"
+    }
+
+    val opInt: Option[(Int, Int)] => Int = {
+      case Some((head, tailResult)) => head * tailResult
+      case None                     => 1
+    }
+
+    def fold[A](
+        op: Option[(Int, A)] => A,
+        projection: List => Option[(Int, List)],
+    ): List => A = {
+      def loop(state: List): A =
+        op(projection(state) match {
+          case Some((head, tail)) => Some(head, loop(tail))
+          case None               => None
+        })
+
+      loop
+    }
+
+    def mkString: List => String =
+      fold(opString, project)
+
+    def product: List => Int =
+      fold(opInt, project)
+
+    val ints: List = Cons(3, Cons(2, Cons(1, Nil)))
+
+    expect.all(
+      fold(opString, project)(ints) == "3 :: 2 :: 1 :: nil",
+      fold(opInt, project)(ints) == 6,
+      mkString(ints) == "3 :: 2 :: 1 :: nil",
+      product(ints) == 6,
+    )
+  }
+
+  pureTest("Abstract the structure 2") {
+    sealed trait List
+
+    case class Cons(
+        head: Int,
+        tail: List,
+    ) extends List
+
+    case object Nil extends List
+
+    type ListF[A] = Option[(Int, A)]
+
+    val project: List => ListF[List] = {
+      case Cons(head, tail) => Some((head, tail))
+      case Nil              => None
+    }
+
+    val opString: ListF[String] => String = {
+      case Some((head, tailResult)) => s"$head :: $tailResult"
+      case None                     => "nil"
+    }
+
+    val opInt: ListF[Int] => Int = {
+      case Some((head, tailResult)) => head * tailResult
+      case None                     => 1
+    }
+
+    def fold[A](
+        op: ListF[A] => A,
+        projection: List => ListF[List],
+    ): List => A = {
+      def loop(state: List): A =
+        op(go(projection(state), loop))
+
+      def go(state: ListF[List], f: List => A): ListF[A] =
+        state match {
+          case Some((head, tail)) => Some(head, f(tail))
+          case None               => None
+        }
+
+      loop
+    }
+
+    def mkString: List => String =
+      fold(opString, project)
+
+    def product: List => Int =
+      fold(opInt, project)
+
+    val ints: List = Cons(3, Cons(2, Cons(1, Nil)))
+
+    expect.all(
+      fold(opString, project)(ints) == "3 :: 2 :: 1 :: nil",
+      fold(opInt, project)(ints) == 6,
+      mkString(ints) == "3 :: 2 :: 1 :: nil",
+      product(ints) == 6,
+    )
+  }
+
+  pureTest("Abstract the structure 3 - introduce functor") {
+    type ListF[A] = Option[(Int, A)]
+
+    trait Functor[F[_]] {
+      def map[A, B](fa: F[A], f: A => B): F[B]
+    }
+
+    implicit val listFFunctor = new Functor[ListF] {
+      override def map[A, B](list: ListF[A], f: A => B) =
+        list match {
+          case Some((head, tail)) => Some((head, f(tail)))
+          case None               => None
+        }
+    }
+
+    def map[F[_], A, B](
+        fa: F[A],
+        f: A => B,
+    )(implicit
+        functor: Functor[F],
+    ): F[B] =
+      functor.map(fa, f)
+
+    sealed trait List
+
+    case class Cons(
+        head: Int,
+        tail: List,
+    ) extends List
+
+    case object Nil extends List
+
+    val project: List => ListF[List] = {
+      case Cons(head, tail) => Some((head, tail))
+      case Nil              => None
+    }
+
+    val opString: ListF[String] => String = {
+      case Some((head, tailResult)) => s"$head :: $tailResult"
+      case None                     => "nil"
+    }
+
+    val opInt: ListF[Int] => Int = {
+      case Some((head, tailResult)) => head * tailResult
+      case None                     => 1
+    }
+
+    def cata[F[_]: Functor, A, B](
+        algebra: F[A] => A,
+        projection: B => F[B],
+    ): B => A = {
+      def loop(state: B): A =
+        algebra(map(projection(state), loop))
+
+      loop
+    }
+
+    def mkString: List => String =
+      cata(opString, project)
+
+    def product: List => Int =
+      cata(opInt, project)
+
+    val ints: List = Cons(3, Cons(2, Cons(1, Nil)))
+
+    expect.all(
+      cata(opString, project).apply(ints) == "3 :: 2 :: 1 :: nil",
+      cata(opInt, project).apply(ints) == 6,
+      mkString(ints) == "3 :: 2 :: 1 :: nil",
       product(ints) == 6,
     )
   }
