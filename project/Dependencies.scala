@@ -6,7 +6,8 @@ object Dependencies {
       cats ++
         droste ++
         ducktape ++
-        weaver
+        weaver ++
+        scalagraph
 
     lazy val fs2Examples =
       cats ++
@@ -110,6 +111,17 @@ object Dependencies {
     "io.opentelemetry" % "opentelemetry-exporter-otlp"               % Versions.opentelemetry % Runtime,
     "io.opentelemetry" % "opentelemetry-exporter-logging"            % Versions.opentelemetry % Runtime,
     "io.opentelemetry" % "opentelemetry-sdk-extension-autoconfigure" % Versions.opentelemetry % Runtime,
+  )
+
+  lazy val scalagraphCore        = "org.scala-graph" %% "graph-core"        % Versions.scalagraphCore cross CrossVersion.for3Use2_13
+  lazy val scalagraphDot         = "org.scala-graph" %% "graph-dot"         % Versions.scalagraphDot cross CrossVersion.for3Use2_13
+  lazy val scalagraphJson        = "org.scala-graph" %% "graph-json"        % Versions.scalagraphJson cross CrossVersion.for3Use2_13
+  lazy val scalagraphConstrained = "org.scala-graph" %% "graph-constrained" % Versions.scalagraphConstrained cross CrossVersion.for3Use2_13
+  lazy val scalagraph = Seq(
+    scalagraphCore,
+    scalagraphDot,
+    scalagraphJson,
+    scalagraphConstrained,
   )
 
   lazy val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % Versions.scalaParserCombinators
