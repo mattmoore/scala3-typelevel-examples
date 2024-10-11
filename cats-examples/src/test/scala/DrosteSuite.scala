@@ -77,8 +77,11 @@ object DrosteSuite extends SimpleIOSuite {
 
   pureTest("Do many things at once") {
     sealed trait ListIntF[+T]
+
     final case class ::[+T](head: Int, tail: T) extends ListIntF[T]
-    case object Nil                             extends ListIntF[Nothing]
+
+    case object Nil extends ListIntF[Nothing]
+
     implicit class ConsInt[T](t: T) {
       def ::(newHead: Int): ::[T] = new ::(newHead, t)
     }
@@ -117,6 +120,81 @@ object DrosteSuite extends SimpleIOSuite {
 
     expect.all(
       doManyThings(4) == ((10, 4), "4 :: 3 :: 2 :: 1 :: Nil"),
+    )
+  }
+
+  pureTest("Simple example of recursion over List Int and fold to either Int or String without droste") {
+    sealed trait List
+
+    case class Cons(
+        head: Int,
+        tail: List,
+    ) extends List
+
+    case object Nil extends List
+
+    def product(
+        values: List,
+    ): Int =
+      values match
+        case Cons(head, tail) => head * product(tail)
+        case Nil              => 1
+
+    def mkString(
+        values: List,
+    ): String =
+      values match
+        case Cons(head, tail) => s"$head :: ${mkString(tail)}"
+        case Nil              => "Nil"
+
+    val ints: List = Cons(3, Cons(2, Cons(1, Nil)))
+
+    expect.all(
+      product(ints) == 3 * 2 * 1,
+      mkString(ints) == "3 :: 2 :: 1 :: Nil",
+    )
+  }
+
+  pureTest("Simple example of recursion over List String without droste") {
+    sealed trait List
+
+    case class Cons(
+        head: Int,
+        tail: List,
+    ) extends List
+
+    case object Nil extends List
+
+    def stepString(head: Int, tailResult: String): String =
+      s"$head :: $tailResult"
+
+    def stepInt(head: Int, tailResult: Int): Int =
+      head * tailResult
+
+    def fold[A](
+        base: A,
+        step: (Int, A) => A,
+    ): List => A = {
+      def loop(state: List): A =
+        state match
+          case Cons(head, tail) => step(head, loop(tail))
+          case Nil              => base
+
+      loop
+    }
+
+    def mkString: List => String =
+      fold("Nil", stepString)
+
+    def product: List => Int =
+      fold(1, stepInt)
+
+    val ints: List = Cons(3, Cons(2, Cons(1, Nil)))
+
+    expect.all(
+      fold("Nil", stepString)(ints) == "3 :: 2 :: 1 :: Nil",
+      mkString(ints) == "3 :: 2 :: 1 :: Nil",
+      product(ints) == 6,
     )
   }
 }
