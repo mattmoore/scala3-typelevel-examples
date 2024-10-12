@@ -40,12 +40,32 @@ object SocialGraphSuite extends SimpleIOSuite {
     ).toList.foreach(println)
 
     expect.all(
-      graph.allSuccessors(raphael) == Set(matt, mary, kira, christina),
-      graph.allSuccessors(robert) == Set(john, julia, maria),
-      graph.parents(raphael) == Set(Parent(raphael, matt), Parent(raphael, mary)),
-      graph.parents(robert) == Set(Parent(robert, john), Parent(robert, julia)),
-      graph.siblings(raphael) == Set(kira, christina),
-      graph.siblings(robert) == Set(maria),
+      graph.allSuccessors(raphael) == Set(
+        matt,
+        mary,
+        kira,
+        christina,
+      ),
+      graph.allSuccessors(robert) == Set(
+        john,
+        julia,
+        maria,
+      ),
+      graph.parents(raphael) == Set(
+        Parent(raphael, matt),
+        Parent(raphael, mary),
+      ),
+      graph.parents(robert) == Set(
+        Parent(robert, john),
+        Parent(robert, julia),
+      ),
+      graph.siblings(raphael) == Set(
+        kira,
+        christina,
+      ),
+      graph.siblings(robert) == Set(
+        maria,
+      ),
     )
   }
 }
