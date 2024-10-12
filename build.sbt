@@ -17,6 +17,8 @@ lazy val root = (project in file("."))
   .aggregate(
     `cats-examples`,
     `skunk-examples`,
+    `fs2-examples`,
+    `graph-examples`,
   )
 
 lazy val `cats-examples` = (project in file("cats-examples"))
@@ -43,6 +45,13 @@ lazy val `parser-combinators` = (project in file("parser-combinators"))
   .settings(
     name := "parser-combinators",
     libraryDependencies ++= Dependencies.Projects.parserCombinators,
+  )
+
+lazy val `graph-examples` = (project in file("graph-examples"))
+  .settings(
+    name := "graph-examples",
+    libraryDependencies ++= Dependencies.Projects.typelevelExamples,
+    fork := true,
   )
 
 addCommandAlias("unitTests", "coverageOn; cats-examples/test; cats-examples/coverageReport; coverageOff")
