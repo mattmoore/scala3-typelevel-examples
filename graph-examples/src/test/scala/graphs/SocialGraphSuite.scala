@@ -1,7 +1,6 @@
 package graphs
 
-import graphs.SocialGraph.*
-import scalax.collection.immutable.Graph
+import graphs.socialgraph.*
 import weaver.*
 
 object SocialGraphSuite extends SimpleIOSuite {
@@ -10,22 +9,27 @@ object SocialGraphSuite extends SimpleIOSuite {
     val mary    = Person("Mary")
     val raphael = Person("Raphael")
     val kira    = Person("Kira")
+    val maria   = Person("Maria")
 
-    val graph: Graph[Person, Relation] = SocialGraph.from(
-      Parent(raphael, matt)
-        :: Parent(raphael, mary)
-        :: Siblings(raphael, kira)
-        :: Nil,
+    val graph: SocialGraph = SocialGraph.from(
+      List(
+        Parent(raphael, matt),
+        Parent(raphael, mary),
+        Siblings(raphael, kira),
+        Siblings(raphael, maria),
+      ),
     )
 
-    println(graph)
-    println(allSuccessors(graph)(raphael))
-    println(parents(graph)(raphael))
+    (
+      graph,
+      graph.allSuccessors(raphael),
+      graph.parents(raphael),
+      graph.siblings(raphael),
+    ).toList.foreach(println)
 
     expect.all(
-      graph == SocialGraph.from(Parent(raphael, matt) :: Parent(raphael, mary) :: Siblings(raphael, kira) :: Nil),
-      allSuccessors(graph)(raphael) == Set(matt, kira, mary),
-      parents(graph)(raphael) == Set(Parent(raphael, matt), Parent(raphael, mary)),
+      graph.allSuccessors(raphael) == Set(matt, mary, kira, maria),
+      graph.parents(raphael) == Set(Parent(raphael, matt), Parent(raphael, mary)),
     )
   }
 }
