@@ -48,6 +48,13 @@ lazy val `parser-combinators` = (project in file("parser-combinators"))
     libraryDependencies ++= Dependencies.Projects.parserCombinators,
   )
 
+lazy val `recursion-schemes` = (project in file("recursion-schemes"))
+  .settings(
+    name := "recursion-schemes",
+    libraryDependencies ++= Dependencies.Projects.typelevelExamples,
+    fork := true,
+  )
+
 lazy val `graph-examples` = (project in file("graph-examples"))
   .settings(
     name := "graph-examples",
