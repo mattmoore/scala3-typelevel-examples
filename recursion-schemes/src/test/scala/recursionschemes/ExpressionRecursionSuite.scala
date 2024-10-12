@@ -4,7 +4,7 @@ import higherkindness.droste.*
 import higherkindness.droste.data.*
 import weaver.*
 
-import Expression.*
+import ExpressionAlgebras.*
 
 object ExpressionRecursionSuite extends SimpleIOSuite {
   pureTest("Catamorphism with expression example - all you need is a Functor and F-Algebra") {
@@ -21,7 +21,7 @@ object ExpressionRecursionSuite extends SimpleIOSuite {
     )
 
     expect.all(
-      scheme.cata(evaluate).apply(exp2) == 0.3466666666666667,
+      scheme.cata(evaluateAlgebra).apply(exp2) == 0.3466666666666667,
     )
   }
 }
