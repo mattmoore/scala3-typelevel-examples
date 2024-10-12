@@ -4,6 +4,7 @@ ThisBuild / scalaVersion                        := "3.5.0"
 ThisBuild / Test / parallelExecution            := false
 ThisBuild / githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("22"))
 ThisBuild / githubWorkflowPublishTargetBranches := Seq()
+ThisBuild / scalacOptions ++= Seq("-no-indent")
 
 lazy val root = (project in file("."))
   .enablePlugins(

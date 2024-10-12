@@ -58,10 +58,11 @@ case class Friends(
   def extendKeyBy = OneOrMore.one(Friends)
 }
 
-extension (graph: SocialGraph)
-  def allSuccessors(person: Person): Set[graph.NodeT] =
+extension (graph: SocialGraph) {
+  def allSuccessors(person: Person): Set[graph.NodeT] = {
     val personNode = graph.get(person)
     personNode.withSubgraph().toSet - personNode
+  }
 
   def parents(child: Person): Set[graph.GraphInnerEdge] =
     graph
@@ -75,3 +76,4 @@ extension (graph: SocialGraph)
       .get(child)
       .diPredecessors
       .toSet
+}

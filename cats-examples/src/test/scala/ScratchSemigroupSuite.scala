@@ -62,12 +62,13 @@ object ScratchSemigroupSuite extends SimpleIOSuite {
 
   pureTest("Let's define extension methods just like cats does") {
     object SemigroupSyntax {
-      extension [T](a: T)
+      extension [T](a: T) {
         infix def combine(b: T)(using semigroup: Semigroup[T]): T =
           semigroup.combine(a, b)
 
         def |+|(b: T)(using semigroup: Semigroup[T]): T =
           a.combine(b)
+      }
     }
 
     // Now we can import our instances...

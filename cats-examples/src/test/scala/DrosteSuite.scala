@@ -1,19 +1,69 @@
 import cats.Functor
 import higherkindness.droste.*
 import higherkindness.droste.data.*
+import higherkindness.droste.syntax.all.*
 import weaver.*
 
 object DrosteSuite extends SimpleIOSuite {
-  val natCoalgebra: Coalgebra[Option, BigDecimal] =
-    Coalgebra(n => if (n > 0) Some(n - 1) else None)
+  pureTest("Catamorphism with expression example - all you need is a Functor and F-Algebra") {
+    sealed trait Exp[A]
+    final case class IntValue[A](v: Int)           extends Exp[A]
+    final case class DecValue[A](v: Double)        extends Exp[A]
+    final case class Sum[A](exp1: A, exp2: A)      extends Exp[A]
+    final case class Multiply[A](exp1: A, exp2: A) extends Exp[A]
+    final case class Divide[A](exp1: A, exp2: A)   extends Exp[A]
+    final case class Square[A](exp: A)             extends Exp[A]
 
-  val fibAlgebra: CVAlgebra[Option, BigDecimal] = CVAlgebra {
-    case Some(r1 :< Some(r2 :< _)) => r1 + r2
-    case Some(_ :< None)           => 1
-    case None                      => 0
+    // Functor - this defines how to map over expression types
+    given functor: Functor[Exp] = new Functor[Exp] {
+      def map[A, B](exp: Exp[A])(f: A => B): Exp[B] = exp match {
+        case IntValue(v)      => IntValue(v)
+        case DecValue(v)      => DecValue(v)
+        case Sum(a1, a2)      => Sum(f(a1), f(a2))
+        case Multiply(a1, a2) => Multiply(f(a1), f(a2))
+        case Divide(a1, a2)   => Divide(f(a1), f(a2))
+        case Square(a)        => Square(f(a))
+      }
+    }
+
+    // F-Algebra - function that actually evaluates the values
+    // Algebra[Exp, Double] is isomorphic to Exp[Double] => Double
+    val evaluate: Algebra[Exp, Double] = Algebra {
+      case IntValue(v)      => v.toDouble
+      case DecValue(v)      => v
+      case Sum(a1, a2)      => a1 + a2
+      case Multiply(a1, a2) => a1 * a2
+      case Divide(a1, a2)   => a1 / a2
+      case Square(a)        => a * a
+    }
+
+    val exp2: Fix[Exp] = Fix(
+      Divide(
+        Fix(DecValue(5.2)),
+        Fix(
+          Sum(
+            Fix(IntValue(10)),
+            Fix(IntValue(5)),
+          ),
+        ),
+      ),
+    )
+
+    expect.all(
+      scheme.cata(evaluate).apply(exp2) == 0.3466666666666667,
+    )
   }
 
   pureTest("Fibonacci using an anamorphism followed by a histomorphism - aka a dynamorphism") {
+    val natCoalgebra: Coalgebra[Option, BigDecimal] =
+      Coalgebra(n => if (n > 0) Some(n - 1) else None)
+
+    val fibAlgebra: CVAlgebra[Option, BigDecimal] = CVAlgebra {
+      case Some(r1 :< Some(r2 :< _)) => r1 + r2
+      case Some(_ :< None)           => 1
+      case None                      => 0
+    }
+
     val fib: BigDecimal => BigDecimal = scheme.ghylo(
       fibAlgebra.gather(Gather.histo),
       natCoalgebra.scatter(Scatter.ana),
@@ -39,6 +89,15 @@ object DrosteSuite extends SimpleIOSuite {
   }
 
   pureTest("Do two things at once - fibonacci and sum of all squares") {
+    val natCoalgebra: Coalgebra[Option, BigDecimal] =
+      Coalgebra(n => if (n > 0) Some(n - 1) else None)
+
+    val fibAlgebra: CVAlgebra[Option, BigDecimal] = CVAlgebra {
+      case Some(r1 :< Some(r2 :< _)) => r1 + r2
+      case Some(_ :< None)           => 1
+      case None                      => 0
+    }
+
     val fromNatAlgebra: Algebra[Option, BigDecimal] = Algebra {
       case Some(n) => n + 1
       case None    => 0
@@ -136,16 +195,18 @@ object DrosteSuite extends SimpleIOSuite {
     def product(
         values: List,
     ): Int =
-      values match
+      values match {
         case Cons(head, tail) => head * product(tail)
         case Nil              => 1
+      }
 
     def mkString(
         values: List,
     ): String =
-      values match
+      values match {
         case Cons(head, tail) => s"$head :: ${mkString(tail)}"
         case Nil              => "Nil"
+      }
 
     val ints: List = Cons(3, Cons(2, Cons(1, Nil)))
 
@@ -176,9 +237,10 @@ object DrosteSuite extends SimpleIOSuite {
         step: (Int, A) => A,
     ): List => A = {
       def loop(state: List): A =
-        state match
+        state match {
           case Cons(head, tail) => step(head, loop(tail))
           case Nil              => base
+        }
 
       loop
     }

@@ -49,9 +49,10 @@ object StateSuite extends SimpleIOSuite {
 
     def processNextChar(nextChar: Char): State[Tracking, Unit] = State.modify { s =>
       val nextWord = s.prevWord + nextChar
-      dictionary.contains(nextWord) match
+      dictionary.contains(nextWord) match {
         case true  => Tracking(s.wordsFound :+ nextWord, "")
         case false => Tracking(s.wordsFound, nextWord)
+      }
     }
 
     val matchingWords = phrase.foldLeft(new Tracking) { (s, c) =>
@@ -71,9 +72,10 @@ object StateSuite extends SimpleIOSuite {
 
     val matchingWords: Tracking = phrase.foldLeft(new Tracking) { (s, nextChar) =>
       val nextWord = s.prevWord + nextChar
-      dictionary.contains(nextWord) match
+      dictionary.contains(nextWord) match {
         case true  => Tracking(s.wordsFound :+ nextWord, "")
         case false => Tracking(s.wordsFound, nextWord)
+      }
     }
 
     expect(
