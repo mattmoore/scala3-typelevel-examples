@@ -6,6 +6,20 @@ ThisBuild / githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("22"))
 ThisBuild / githubWorkflowPublishTargetBranches := Seq()
 ThisBuild / scalacOptions ++= Seq("-no-indent")
 
+lazy val welcomeSettings = Seq(
+  logo      := Embroidery.projectLogo,
+  logoColor := scala.Console.RED,
+  usefulTasks := Seq(
+    UsefulTask("welcome", "Show this welcome screen.").alias("w"),
+    UsefulTask("reload", "Reload sbt.").alias("r"),
+    UsefulTask("formatAll", "Format all Scala code.").alias("f"),
+    UsefulTask("cats-examples/test", "Run cats examples.").alias("cats"),
+    UsefulTask("fs2-examples/test", "Run fs2 examples.").alias("fs2"),
+    UsefulTask("skunk-examples/run", "Run skunk standalone examples.").alias("skunk"),
+    UsefulTask("test", "Run all unit tests.").alias("t"),
+  ),
+)
+
 lazy val root = (project in file("."))
   .enablePlugins(
     GitBranchPrompt,
@@ -64,17 +78,3 @@ lazy val `graph-examples` = (project in file("graph-examples"))
 
 addCommandAlias("unitTests", "coverageOn; cats-examples/test; cats-examples/coverageReport; coverageOff")
 addCommandAlias("formatAll", "scalafmtAll; scalafmtSbt")
-
-lazy val welcomeSettings = Seq(
-  logo      := Embroidery.projectLogo,
-  logoColor := scala.Console.RED,
-  usefulTasks := Seq(
-    UsefulTask("welcome", "Show this welcome screen.").alias("w"),
-    UsefulTask("reload", "Reload sbt.").alias("r"),
-    UsefulTask("formatAll", "Format all Scala code.").alias("f"),
-    UsefulTask("cats-examples/test", "Run cats examples.").alias("cats"),
-    UsefulTask("fs2-examples/test", "Run fs2 examples.").alias("fs2"),
-    UsefulTask("skunk-examples/run", "Run skunk standalone examples.").alias("skunk"),
-    UsefulTask("test", "Run all unit tests.").alias("t"),
-  ),
-)

@@ -3,6 +3,7 @@ object Versions {
   val catsEffect             = "3.5.4"
   val circe                  = "0.14.9"
   val ciris                  = "3.6.0"
+  val droste                 = "0.9.0"
   val ducktape               = "0.2.5"
   val flyway                 = "10.17.3"
   val fs2                    = "3.11.0"

@@ -51,7 +51,8 @@ object Dependencies {
   )
 
   lazy val droste = Seq(
-    "io.higherkindness" %% "droste-core" % "0.9.0",
+    "io.higherkindness" %% "droste-core"   % Versions.droste,
+    "io.higherkindness" %% "droste-macros" % Versions.droste,
   )
 
   lazy val ducktape = Seq(
