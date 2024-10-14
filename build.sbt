@@ -1,6 +1,6 @@
 import sbtwelcome.*
 
-ThisBuild / scalaVersion                        := "3.5.0"
+ThisBuild / scalaVersion                        := "3.5.1"
 ThisBuild / Test / parallelExecution            := false
 ThisBuild / githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("22"))
 ThisBuild / githubWorkflowPublishTargetBranches := Seq()

@@ -47,10 +47,13 @@ object ListRecursionSuite extends SimpleIOSuite {
     import higherkindness.droste.*
     import higherkindness.droste.data.*
 
-    val structure = Fix(ConsF(1, Fix(ConsF(2, Fix(ConsF(3, Fix(NilF)))))))
+    val structure: List[Int] = List(1, 2, 3)
+    val fixed: Fix[ListF]    = out(structure)
+
+    val double = scheme.cata(productAlgebra)
 
     expect.all(
-      scheme.cata(doubleAlgebra).apply(structure) == 6,
+      double(fixed) == 6,
     )
   }
 }
