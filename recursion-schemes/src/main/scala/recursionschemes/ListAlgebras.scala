@@ -10,15 +10,18 @@ object ListAlgebras {
   final case class ConsF[A](head: Int, tail: A) extends ListF[A]
   case object NilF                              extends ListF[Nothing]
 
-  def in: ListF[List[Int]] => List[Int] = {
-    case NilF              => Nil
-    case ConsF(head, tail) => head :: tail
-  }
+  lazy val isoListListF: IsoSet[List[Int], Fix[ListF]] =
+    new (List[Int] <=> Fix[ListF]) {
+      val to: List[Int] => Fix[ListF] = {
+        case Nil          => NilF.fix
+        case head :: tail => ConsF(head, to(tail)).fix
+      }
 
-  def out: List[Int] => Fix[ListF] = {
-    case Nil          => NilF.fix
-    case head :: tail => ConsF(head, out(tail)).fix
-  }
+      val from: Fix[ListF] => List[Int] = {
+        case NilF                   => Nil
+        case Fix(ConsF(head, tail)) => head :: from(tail)
+      }
+    }
 
   given Functor[ListF] = new Functor[ListF] {
     def map[A, B](fa: ListF[A])(f: A => B): ListF[B] = fa match {

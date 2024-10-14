@@ -48,7 +48,7 @@ object ListRecursionSuite extends SimpleIOSuite {
     import higherkindness.droste.data.*
 
     val structure: List[Int] = List(1, 2, 3)
-    val fixed: Fix[ListF]    = out(structure)
+    val fixed: Fix[ListF]    = isoListListF.to(structure)
 
     val double = scheme.cata(productAlgebra)
 
