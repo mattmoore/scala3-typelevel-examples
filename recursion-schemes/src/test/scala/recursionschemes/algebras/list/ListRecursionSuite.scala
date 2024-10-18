@@ -1,4 +1,4 @@
-package recursionschemes
+package recursionschemes.algebras.list
 
 import weaver.*
 
@@ -6,6 +6,7 @@ object ListRecursionSuite extends SimpleIOSuite {
   pureTest("Catamorphism with list example - full droste example, using Scala List") {
     import higherkindness.droste.*
     import higherkindness.droste.data.list.*
+    import higherkindness.droste.scheme.*
 
     val sumAlgebra: Algebra[ListF[Int, *], Int] = Algebra {
       case NilF              => 0
@@ -27,10 +28,10 @@ object ListRecursionSuite extends SimpleIOSuite {
       case ConsF(head, tail) => s"$head :: $tail"
     }
 
-    val sum     = scheme.cata(sumAlgebra)
-    val product = scheme.cata(productAlgebra)
-    val double  = scheme.cata(doubleAlgebra)
-    val string  = scheme.cata(stringAlgebra)
+    val sum     = cata(sumAlgebra)
+    val product = cata(productAlgebra)
+    val double  = cata(doubleAlgebra)
+    val string  = cata(stringAlgebra)
 
     val structure = List(1, 2, 3, 4)
 
@@ -43,14 +44,14 @@ object ListRecursionSuite extends SimpleIOSuite {
   }
 
   pureTest("Catamorphism with list example - all you need is a Functor and F-Algebra") {
-    import ListAlgebras.*
     import higherkindness.droste.*
     import higherkindness.droste.data.*
+    import higherkindness.droste.scheme.*
 
     val structure: List[Int] = List(1, 2, 3)
-    val fixed: Fix[ListF]    = isoListListF.to(structure)
+    val fixed: Fix[ListF]    = iso.forward(structure)
 
-    val double = scheme.cata(productAlgebra)
+    val double = cata(productAlgebra)
 
     expect.all(
       double(fixed) == 6,

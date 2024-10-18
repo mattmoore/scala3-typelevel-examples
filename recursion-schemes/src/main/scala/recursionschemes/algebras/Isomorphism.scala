@@ -1,8 +1,8 @@
-package recursionschemes
+package recursionschemes.algebras
 
 trait Isomorphism[Arrow[_, _], A, B] { self =>
-  def to: Arrow[A, B]
-  def from: Arrow[B, A]
+  def forward: Arrow[A, B]
+  def inverse: Arrow[B, A]
 }
 
 type IsoSet[A, B] = Isomorphism[Function1, A, B]
