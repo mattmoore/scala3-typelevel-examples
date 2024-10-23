@@ -9,7 +9,7 @@ import recursionschemes.algebras.*
   */
 lazy val iso: IsoSet[Expression, Fix[ExpressionF]] =
   new (Expression <=> Fix[ExpressionF]) {
-    lazy val forward: Expression => Fix[ExpressionF] = {
+    def forward: Expression => Fix[ExpressionF] = {
       case IntValue(v)                            => Fix(IntValueF(v))
       case DecValue(v)                            => Fix(DecValueF(v))
       case Sum(x: Expression, y: Expression)      => Fix(SumF(forward(x), forward(y)))
@@ -18,7 +18,7 @@ lazy val iso: IsoSet[Expression, Fix[ExpressionF]] =
       case Square(x: Expression)                  => Fix(SquareF(forward(x)))
     }
 
-    lazy val inverse: Fix[ExpressionF] => Expression = {
+    def inverse: Fix[ExpressionF] => Expression = {
       case Fix(IntValueF(v))    => IntValue(v)
       case Fix(DecValueF(v))    => DecValue(v)
       case Fix(SumF(x, y))      => Sum(inverse(x), inverse(y))

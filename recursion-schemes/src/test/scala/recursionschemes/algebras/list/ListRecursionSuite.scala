@@ -1,5 +1,6 @@
 package recursionschemes.algebras.list
 
+import cats.syntax.all.*
 import weaver.*
 
 object ListRecursionSuite extends SimpleIOSuite {
@@ -33,28 +34,38 @@ object ListRecursionSuite extends SimpleIOSuite {
     val double  = cata(doubleAlgebra)
     val string  = cata(stringAlgebra)
 
-    val structure = List(1, 2, 3, 4)
+    val list = List(1, 2, 3, 4)
 
     expect.all(
-      sum(structure) == 10,
-      product(structure) == 24,
-      double(structure) == List(2, 4, 6, 8),
-      string(structure) == "1 :: 2 :: 3 :: 4 :: Nil",
+      sum(list) == 10,
+      product(list) == 24,
+      double(list) == List(2, 4, 6, 8),
+      string(list) == "1 :: 2 :: 3 :: 4 :: Nil",
     )
   }
 
   pureTest("Catamorphism with list example - all you need is a Functor and F-Algebra") {
-    import higherkindness.droste.*
-    import higherkindness.droste.data.*
     import higherkindness.droste.scheme.*
 
-    val structure: List[Int] = List(1, 2, 3)
-    val fixed: Fix[ListF]    = iso.forward(structure)
+    val list: List[Int] = List(1, 2, 3, 4)
 
-    val double = cata(productAlgebra)
+    lazy val evaluateSum: List[Int] => Int =
+      iso.forward >>> cata(sumAlgebra)
+
+    lazy val evaluateProduct: List[Int] => Int =
+      iso.forward >>> cata(productAlgebra)
+
+    lazy val evaluateDouble: List[Int] => List[Int] =
+      iso.forward >>> cata(doubleAlgebra)
+
+    lazy val evaluateString: List[Int] => String =
+      iso.forward >>> cata(stringAlgebra)
 
     expect.all(
-      double(fixed) == 6,
+      evaluateSum(list) == 10,
+      evaluateProduct(list) == 24,
+      evaluateDouble(list) == List(2, 4, 6, 8),
+      evaluateString(list) == "1 :: 2 :: 3 :: 4 :: Nil",
     )
   }
 }

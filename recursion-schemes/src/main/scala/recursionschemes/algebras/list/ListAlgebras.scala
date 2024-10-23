@@ -30,7 +30,22 @@ implicit val listFFunctor: Functor[ListF] = new Functor[ListF] {
   }
 }
 
-val productAlgebra: Algebra[ListF, Int] = Algebra {
+lazy val sumAlgebra: Algebra[ListF, Int] = Algebra {
+  case NilF              => 0
+  case ConsF(head, tail) => head + tail
+}
+
+lazy val productAlgebra: Algebra[ListF, Int] = Algebra {
   case ConsF(head, tail) => head * tail
   case NilF              => 1
+}
+
+lazy val doubleAlgebra: Algebra[ListF, List[Int]] = Algebra {
+  case NilF              => List.empty
+  case ConsF(head, tail) => head * 2 :: tail
+}
+
+lazy val stringAlgebra: Algebra[ListF, String] = Algebra {
+  case NilF              => "Nil"
+  case ConsF(head, tail) => s"$head :: $tail"
 }
