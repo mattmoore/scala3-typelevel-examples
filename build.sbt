@@ -16,6 +16,7 @@ lazy val welcomeSettings = Seq(
     UsefulTask("cats-examples/test", "Run cats examples.").alias("cats"),
     UsefulTask("fs2-examples/test", "Run fs2 examples.").alias("fs2"),
     UsefulTask("skunk-examples/run", "Run skunk standalone examples.").alias("skunk"),
+    UsefulTask("jena-examples/run", "Run jena examples.").alias("jena"),
     UsefulTask("test", "Run all unit tests.").alias("t"),
   ),
 )
@@ -34,6 +35,7 @@ lazy val root = (project in file("."))
     `skunk-examples`,
     `fs2-examples`,
     `graph-examples`,
+    `jena-examples`,
   )
 
 lazy val `cats-examples` = (project in file("cats-examples"))
@@ -73,6 +75,13 @@ lazy val `graph-examples` = (project in file("graph-examples"))
   .settings(
     name := "graph-examples",
     libraryDependencies ++= Dependencies.Projects.typelevelExamples,
+    fork := true,
+  )
+
+lazy val `jena-examples` = (project in file("jena-examples"))
+  .settings(
+    name := "jena-examples",
+    libraryDependencies ++= Dependencies.Projects.jenaExamples,
     fork := true,
   )
 

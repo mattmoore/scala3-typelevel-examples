@@ -9,6 +9,7 @@ object Versions {
   val fs2                    = "3.11.0"
   val http4s                 = "0.23.27"
   val ip4s                   = "3.5.0"
+  val jena                   = "5.2.0"
   val log4cats               = "2.7.0"
   val logback                = "1.4.14"
   val logstashLogbackEncoder = "8.0"

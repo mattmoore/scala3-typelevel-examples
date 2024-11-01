@@ -26,6 +26,13 @@ object Dependencies {
       cats ++
         Seq(scalaParserCombinators) ++
         weaver
+
+    lazy val jenaExamples =
+      cats ++
+        jena ++
+        droste ++
+        ducktape ++
+        weaver
   }
 
   lazy val catsCore         = "org.typelevel" %% "cats-core"          % Versions.catsCore
@@ -92,6 +99,11 @@ object Dependencies {
 
   lazy val ip4s = Seq(
     "com.comcast" %% "ip4s-core" % Versions.ip4s,
+  )
+
+  lazy val jenaArq = "org.apache.jena" % "jena-arq" % Versions.jena
+  lazy val jena = Seq(
+    jenaArq,
   )
 
   lazy val log4catsCore           = "org.typelevel"       %% "log4cats-core"            % Versions.log4cats
