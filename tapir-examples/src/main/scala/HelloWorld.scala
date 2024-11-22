@@ -1,12 +1,9 @@
-import sttp.tapir._
-//import sttp.tapir.generic.auto._
-//import sttp.tapir.json.circe._
-//import io.circe.generic.auto._
 import cats.effect.*
-import org.http4s.*
-import sttp.tapir.server.http4s.Http4sServerInterpreter
-import org.http4s.ember.server.EmberServerBuilder
 import com.comcast.ip4s.*
+import org.http4s.*
+import org.http4s.ember.server.EmberServerBuilder
+import sttp.tapir.*
+import sttp.tapir.server.http4s.Http4sServerInterpreter
 
 object HelloWorld extends IOApp {
   val helloWorldEndpoint = endpoint.get

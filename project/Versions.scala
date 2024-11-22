@@ -17,6 +17,7 @@ object Versions {
   val natchez                = "0.3.5"
   val otel4s                 = "0.8.0"
   val opentelemetry          = "1.42.0"
+  val prometheus             = "1.3.2"
   val skunk                  = "1.0.0-M7"
   val sourcepos              = "1.1.0"
   val testContainers         = "0.41.4"

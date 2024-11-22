@@ -39,9 +39,10 @@ object Dependencies {
         droste ++
         ducktape ++
         http4s ++
-        weaver ++
+        prometheus ++
         scalagraph ++
-        tapir
+        tapir ++
+        weaver
   }
 
   lazy val catsCore         = "org.typelevel" %% "cats-core"          % Versions.catsCore
@@ -150,6 +151,13 @@ object Dependencies {
 
   lazy val postgresql = "org.postgresql" % "postgresql" % Versions.postgres
 
+  lazy val prometheusMetricsCore  = "io.prometheus" % "prometheus-metrics-core"  % Versions.prometheus
+  lazy val prometheusMetricsModel = "io.prometheus" % "prometheus-metrics-model" % Versions.prometheus
+  lazy val prometheus = Seq(
+    prometheusMetricsCore,
+    prometheusMetricsModel,
+  )
+
   lazy val skunk = Seq(
     "org.tpolecat" %% "skunk-core" % Versions.skunk,
   )
@@ -159,11 +167,13 @@ object Dependencies {
   )
 
   lazy val tapir = Seq(
-    "com.softwaremill.sttp.tapir" %% "tapir-core"              % Versions.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-http4s-server"     % Versions.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % Versions.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-jsoniter-scala"    % Versions.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-json-circe"        % Versions.tapir,
+    "com.softwaremill.sttp.tapir"           %% "tapir-core"               % Versions.tapir,
+    "com.softwaremill.sttp.tapir"           %% "tapir-http4s-server"      % Versions.tapir,
+    "com.softwaremill.sttp.tapir"           %% "tapir-swagger-ui-bundle"  % Versions.tapir,
+    "com.softwaremill.sttp.tapir"           %% "tapir-jsoniter-scala"     % Versions.tapir,
+    "com.softwaremill.sttp.tapir"           %% "tapir-json-circe"         % Versions.tapir,
+    "com.softwaremill.sttp.tapir"           %% "tapir-prometheus-metrics" % Versions.tapir,
+    "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros"    % "2.30.15",
   )
 
   lazy val testContainers = Seq(
