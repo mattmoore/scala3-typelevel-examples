@@ -33,6 +33,15 @@ object Dependencies {
         droste ++
         ducktape ++
         weaver
+
+    lazy val tapirExamples =
+      cats ++
+        droste ++
+        ducktape ++
+        http4s ++
+        weaver ++
+        scalagraph ++
+        tapir
   }
 
   lazy val catsCore         = "org.typelevel" %% "cats-core"          % Versions.catsCore
@@ -147,6 +156,14 @@ object Dependencies {
 
   lazy val sourcepos = Seq(
     "org.tpolecat" %% "sourcepos" % Versions.sourcepos,
+  )
+
+  lazy val tapir = Seq(
+    "com.softwaremill.sttp.tapir" %% "tapir-core"              % Versions.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-http4s-server"     % Versions.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % Versions.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-jsoniter-scala"    % Versions.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-json-circe"        % Versions.tapir,
   )
 
   lazy val testContainers = Seq(

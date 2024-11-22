@@ -36,6 +36,7 @@ lazy val root = (project in file("."))
     `fs2-examples`,
     `graph-examples`,
     `jena-examples`,
+    `tapir-examples`,
   )
 
 lazy val `cats-examples` = (project in file("cats-examples"))
@@ -82,6 +83,13 @@ lazy val `jena-examples` = (project in file("jena-examples"))
   .settings(
     name := "jena-examples",
     libraryDependencies ++= Dependencies.Projects.jenaExamples,
+    fork := true,
+  )
+
+lazy val `tapir-examples` = (project in file("tapir-examples"))
+  .settings(
+    name := "tapir-examples",
+    libraryDependencies ++= Dependencies.Projects.tapirExamples,
     fork := true,
   )
 
