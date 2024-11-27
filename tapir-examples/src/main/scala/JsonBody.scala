@@ -53,22 +53,27 @@ object JsonBody extends IOApp {
       IO(
         EndpointMetric()
           .onResponseBody { (ep, res) =>
-            val path       = ep.showPathTemplate()
-            val method     = req.method.method
-            val status     = res.code.toString()
-            val underlying = req.underlying.asInstanceOf[Request[IO]]
-            val bodyStringIO = underlying
-              .bodyText(implicitly, underlying.charset.getOrElse(Charset.`UTF-8`))
-              .compile
-              .string
-            for {
-              bodyString <- bodyStringIO
-              parsed = decode[Book](bodyString)
-            } yield {
-              parsed match {
-                case Left(error) => counter.labelValues(path, method, status, "").inc()
-                case Right(book) => counter.labelValues(path, method, status, book.title).inc()
+            val path   = ep.showPathTemplate()
+            val method = req.method.method
+            val status = res.code.toString()
+            (req.method.method, path) match {
+              case ("POST", p) if p.startsWith("/api/book") => {
+                val underlying = req.underlying.asInstanceOf[Request[IO]]
+                val bodyStringIO = underlying
+                  .bodyText(implicitly, underlying.charset.getOrElse(Charset.`UTF-8`))
+                  .compile
+                  .string
+                for {
+                  bodyString <- bodyStringIO
+                  parsed = decode[Book](bodyString)
+                } yield {
+                  parsed match {
+                    case Left(error) => counter.labelValues(path, method, status, "").inc()
+                    case Right(book) => counter.labelValues(path, method, status, book.title).inc()
+                  }
+                }
               }
+              case _ => IO.unit
             }
           },
       )
