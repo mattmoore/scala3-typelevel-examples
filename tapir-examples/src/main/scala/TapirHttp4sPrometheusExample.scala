@@ -1,7 +1,9 @@
 import cats.effect.*
+import cats.implicits.*
 import com.comcast.ip4s.*
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.macros.*
+import fs2.RaiseThrowable
 import io.circe.*
 import io.circe.generic.auto.*
 import io.circe.parser.*
@@ -13,13 +15,14 @@ import org.http4s.server.Server
 import sttp.tapir.*
 import sttp.tapir.generic.auto.*
 import sttp.tapir.json.jsoniter.*
+import sttp.tapir.model.ServerRequest
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 import sttp.tapir.server.http4s.Http4sServerOptions
 import sttp.tapir.server.metrics.EndpointMetric
 import sttp.tapir.server.metrics.Metric
 import sttp.tapir.server.metrics.prometheus.PrometheusMetrics
 
-object JsonBody extends IOApp {
+object TapirHttp4sPrometheusExample extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =
     server.useForever
 
@@ -47,6 +50,20 @@ object JsonBody extends IOApp {
     .labelNames("path", "method", "status", "book_title")
     .register(PrometheusRegistry.defaultRegistry)
 
+  def extractRequestBodyString[F[_]: Async](serverRequest: ServerRequest): F[String] =
+    serverRequest.underlying match {
+      case underlying: Request[?] =>
+        for {
+          underlying <- underlying.asInstanceOf[Request[F]].pure
+          body <- underlying
+            .bodyText(summon[RaiseThrowable[F]], underlying.charset.getOrElse(Charset.`UTF-8`))
+            .compile
+            .string
+        } yield body
+      case _ =>
+        Async[F].raiseError(Throwable("Invalid underlying request type."))
+    }
+
   val customMetrics = Metric[IO, Counter](
     customCounterMetric,
     onRequest = { (req, counter, _) =>
@@ -58,13 +75,8 @@ object JsonBody extends IOApp {
             val status = res.code.toString()
             (req.method.method, path) match {
               case ("POST", p) if p.startsWith("/api/book") => {
-                val underlying = req.underlying.asInstanceOf[Request[IO]]
-                val bodyStringIO = underlying
-                  .bodyText(implicitly, underlying.charset.getOrElse(Charset.`UTF-8`))
-                  .compile
-                  .string
                 for {
-                  bodyString <- bodyStringIO
+                  bodyString <- extractRequestBodyString[IO](req)
                   parsed = decode[Book](bodyString)
                 } yield {
                   parsed match {
