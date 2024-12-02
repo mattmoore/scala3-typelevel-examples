@@ -43,6 +43,24 @@ object TapirHttp4sPrometheusExample extends IOApp {
 
   given JsonValueCodec[Book] = JsonCodecMaker.make
 
+  def extractRequestBodyString[F[_]: Async](serverRequest: ServerRequest): F[String] =
+    serverRequest.underlying match {
+      case underlying: Request[?] =>
+        underlying
+          .asInstanceOf[Request[F]]
+          .bodyText(summon[RaiseThrowable[F]], underlying.charset.getOrElse(Charset.`UTF-8`))
+          .compile
+          .string
+      case _ =>
+        Async[F].raiseError(Throwable("Invalid underlying request type."))
+    }
+
+  object EndpointName extends Enumeration {
+    type EndpointNames = Value
+
+    val Book = Value("book_endpoint").toString()
+  }
+
   val customCounterMetric = Counter
     .builder()
     .name("book_custom_metric")
@@ -50,45 +68,27 @@ object TapirHttp4sPrometheusExample extends IOApp {
     .labelNames("path", "method", "status", "book_title")
     .register(PrometheusRegistry.defaultRegistry)
 
-  def extractRequestBodyString[F[_]: Async](serverRequest: ServerRequest): F[String] =
-    serverRequest.underlying match {
-      case underlying: Request[?] =>
-        for {
-          underlying <- underlying.asInstanceOf[Request[F]].pure
-          body <- underlying
-            .bodyText(summon[RaiseThrowable[F]], underlying.charset.getOrElse(Charset.`UTF-8`))
-            .compile
-            .string
-        } yield body
-      case _ =>
-        Async[F].raiseError(Throwable("Invalid underlying request type."))
-    }
-
   val customMetrics = Metric[IO, Counter](
     customCounterMetric,
     onRequest = { (req, counter, _) =>
-      IO(
-        EndpointMetric()
-          .onResponseBody { (ep, res) =>
-            val path   = ep.showPathTemplate()
-            val method = req.method.method
-            val status = res.code.toString()
-            (req.method.method, path) match {
-              case ("POST", p) if p.startsWith("/api/book") => {
-                for {
-                  bodyString <- extractRequestBodyString[IO](req)
-                  parsed = decode[Book](bodyString)
-                } yield {
-                  parsed match {
-                    case Left(error) => counter.labelValues(path, method, status, "").inc()
-                    case Right(book) => counter.labelValues(path, method, status, book.title).inc()
-                  }
-                }
-              }
-              case _ => IO.unit
+      EndpointMetric().onResponseBody { (ep, res) =>
+        val method = req.method.method
+        val path   = s"${ep.showPathTemplate()}"
+        val status = s"${res.code.code}"
+
+        ep.info.name match {
+          case Some(EndpointName.Book) => {
+            for {
+              bodyString <- extractRequestBodyString[IO](req)
+              parsed = decode[Book](bodyString)
+            } yield parsed match {
+              case Left(error) => counter.labelValues(path, method, status, "").inc()
+              case Right(book) => counter.labelValues(path, method, status, book.title).inc()
             }
-          },
-      )
+          }
+          case _ => IO.unit
+        }
+      }.pure
     },
   )
 
@@ -102,6 +102,7 @@ object TapirHttp4sPrometheusExample extends IOApp {
     .options
 
   val bookEndpointSpec = endpoint.post
+    .name(EndpointName.Book)
     .in("api" / "book")
     .in(jsonBody[Book])
     .out(jsonBody[Book])
