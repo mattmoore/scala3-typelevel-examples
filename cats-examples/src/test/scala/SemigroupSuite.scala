@@ -61,4 +61,31 @@ object SemigroupSuite extends SimpleIOSuite {
     val actual = sessionState1 |+| sessionState2
     expect(actual == expected)
   }
+
+  pureTest("Semigroup with list") {
+    given Semigroup[List[String]] = new Semigroup[List[String]] {
+      override def combine(xs: List[String], ys: List[String]): List[String] =
+        (xs ++ ys).foldLeft(List.empty[String]) { (ls, s) =>
+          if (s == "two") {
+            ls
+          } else {
+            s +: ls
+          }
+        }.reverse
+    }
+
+    implicit class StringListExtensions(xs: List[String]) {
+      def |+|(ys: List[String]): List[String] =
+        summon[Semigroup[List[String]]].combine(xs, ys)
+    }
+
+    val xs = List("one", "two", "three")
+    val ys = List("four", "five", "six")
+
+    val result = xs |+| ys
+
+    expect(
+      result == List("one", "three", "four", "five", "six")
+    )
+  }
 }
