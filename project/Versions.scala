@@ -1,6 +1,6 @@
 object Versions {
-  val catsCore               = "2.12.0"
-  val catsEffect             = "3.5.4"
+  val catsCore               = "2.13.0"
+  val catsEffect             = "3.5.7"
   val circe                  = "0.14.9"
   val ciris                  = "3.6.0"
   val droste                 = "0.9.0"
