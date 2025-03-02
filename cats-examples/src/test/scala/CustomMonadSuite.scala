@@ -6,7 +6,7 @@ import scala.annotation.tailrec
 object CustomMonadSuite extends SimpleIOSuite {
   case class CustomMonad[A](value: A)
 
-  implicit val customMonad: Monad[CustomMonad] = new Monad[CustomMonad] {
+  given Monad[CustomMonad] = new Monad[CustomMonad] {
     override def pure[A](x: A): CustomMonad[A] =
       CustomMonad(x)
 
