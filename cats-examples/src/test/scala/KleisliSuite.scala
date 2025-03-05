@@ -103,4 +103,22 @@ object KleisliSuite extends SimpleIOSuite {
       kleisli2 == true,
     )
   }
+
+  test("Composition with >>>") {
+    import cats.syntax.all.*
+    val getNumberFromDb: Unit => IO[Int]    = _ => IO.pure(2)
+    val processNumber: Int => IO[Int]       = num => IO.pure(num * 2)
+    val writeNumberToDb: Int => IO[Boolean] = num => IO.pure(true)
+
+    val comboKleisli =
+      Kleisli(getNumberFromDb)
+        >>> Kleisli(processNumber)
+        >>> Kleisli(writeNumberToDb)
+
+    for {
+      kleisli <- comboKleisli(())
+    } yield expect.all(
+      kleisli == true,
+    )
+  }
 }
