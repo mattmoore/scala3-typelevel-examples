@@ -15,6 +15,7 @@ lazy val welcomeSettings = Seq(
     UsefulTask("formatAll", "Format all Scala code.").alias("f"),
     UsefulTask("cats-examples/test", "Run cats examples.").alias("cats"),
     UsefulTask("fs2-examples/test", "Run fs2 examples.").alias("fs2"),
+    UsefulTask("tika-examples/test", "Run tika examples.").alias("tika"),
     UsefulTask("skunk-examples/run", "Run skunk standalone examples.").alias("skunk"),
     UsefulTask("jena-examples/run", "Run jena examples.").alias("jena"),
     UsefulTask("test", "Run all unit tests.").alias("t"),
@@ -37,6 +38,7 @@ lazy val root = (project in file("."))
     `graph-examples`,
     `jena-examples`,
     `tapir-examples`,
+    `tika-examples`,
   )
 
 lazy val `cats-examples` = (project in file("cats-examples"))
@@ -90,6 +92,13 @@ lazy val `tapir-examples` = (project in file("tapir-examples"))
   .settings(
     name := "tapir-examples",
     libraryDependencies ++= Dependencies.Projects.tapirExamples,
+    fork := true,
+  )
+
+lazy val `tika-examples` = (project in file("tika-examples"))
+  .settings(
+    name := "tika-examples",
+    libraryDependencies ++= Dependencies.Projects.tikaExamples,
     fork := true,
   )
 

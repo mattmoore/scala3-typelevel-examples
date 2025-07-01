@@ -30,6 +30,7 @@ object Versions {
   val scalagraphConstrained  = "1.13.2"
   val scalaParserCombinators = "2.4.0"
   val tapir                  = "1.11.9"
+  val tika                   = "3.2.0"
   val postgres               = "42.7.4"
   val weaver                 = "0.8.3"
 }

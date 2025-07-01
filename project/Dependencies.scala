@@ -43,6 +43,11 @@ object Dependencies {
         scalagraph ++
         tapir ++
         weaver
+
+    lazy val tikaExamples =
+      cats ++
+        tika ++
+        weaver
   }
 
   lazy val catsCore         = "org.typelevel" %% "cats-core"          % Versions.catsCore
@@ -175,6 +180,11 @@ object Dependencies {
     "com.softwaremill.sttp.tapir"           %% "tapir-json-circe"         % Versions.tapir,
     "com.softwaremill.sttp.tapir"           %% "tapir-prometheus-metrics" % Versions.tapir,
     "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros"    % "2.30.15",
+  )
+
+  lazy val tika = Seq(
+    "org.apache.tika" % "tika-core"                     % Versions.tika,
+    "org.apache.tika" % "tika-parsers-standard-package" % Versions.tika,
   )
 
   lazy val testContainers = Seq(
