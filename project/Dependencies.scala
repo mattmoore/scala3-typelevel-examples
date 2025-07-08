@@ -50,17 +50,19 @@ object Dependencies {
         weaver
   }
 
-  lazy val catsCore         = "org.typelevel" %% "cats-core"          % Versions.catsCore
-  lazy val catsKernel       = "org.typelevel" %% "cats-kernel"        % Versions.catsCore
-  lazy val catsEffect       = "org.typelevel" %% "cats-effect"        % Versions.catsEffect
-  lazy val catsEffectStd    = "org.typelevel" %% "cats-effect-std"    % Versions.catsEffect
-  lazy val catsEffectKernel = "org.typelevel" %% "cats-effect-kernel" % Versions.catsEffect
+  lazy val catsCore         = "org.typelevel"    %% "cats-core"          % Versions.catsCore
+  lazy val catsKernel       = "org.typelevel"    %% "cats-kernel"        % Versions.catsCore
+  lazy val catsEffect       = "org.typelevel"    %% "cats-effect"        % Versions.catsEffect
+  lazy val catsEffectStd    = "org.typelevel"    %% "cats-effect-std"    % Versions.catsEffect
+  lazy val catsEffectKernel = "org.typelevel"    %% "cats-effect-kernel" % Versions.catsEffect
+  lazy val catsRetry        = "com.github.cb372" %% "cats-retry"         % Versions.catsRetry
   lazy val cats = Seq(
     catsCore,
     catsKernel,
     catsEffect,
     catsEffectStd,
     catsEffectKernel,
+    catsRetry,
   )
 
   lazy val circe = Seq(
